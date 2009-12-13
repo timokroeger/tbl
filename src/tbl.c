@@ -11,6 +11,8 @@
 
 #include "tbl.h"
 
+#define RET_ERR(errtype) do { handle->err = errtype; return; } while(0)
+
 typedef struct tbl_handle {
 	tbl_error_t err;
 	const char *ptr;
@@ -29,25 +31,17 @@ static void parse_integer(int(*event_fn)(void *ctx, long value),
 	char *endptr;
 
 	ptr = memchr(handle->ptr + 1, 'e', (handle->end - handle->ptr) - 1);
-	if (!ptr) {
-		handle->err = TBL_E_INVALID_DATA;
-		return;
-	}
+	if (!ptr)
+		RET_ERR(TBL_E_INVALID_DATA);
 
 	value = strtol(handle->ptr + 1, &endptr, 10);
-	if (endptr != ptr) {
-		handle->err = TBL_E_INVALID_DATA;
-		return;
-	}
-	else if(value && *(handle->ptr + 1) == '0') { /* i0e is still valid */
-		handle->err = TBL_E_INVALID_DATA;
-		return;
-	}
+	if (endptr != ptr)
+		RET_ERR(TBL_E_INVALID_DATA);
+	else if(value && *(handle->ptr + 1) == '0') /* i0e is still valid */
+		RET_ERR(TBL_E_INVALID_DATA);
 	else {
-		if (event_fn(handle->ctx, value)) {
-			handle->err = TBL_E_CANCELED_BY_USER;
-			return;
-		}
+		if (event_fn(handle->ctx, value))
+			RET_ERR(TBL_E_CANCELED_BY_USER);
 		handle->ptr = endptr + 1;
 	}
 }
@@ -60,26 +54,19 @@ static void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 	char *endptr;
 
 	ptr = memchr(handle->ptr, ':', handle->end - handle->ptr);
-	if (!ptr) {
-		handle->err = TBL_E_INVALID_DATA;
-		return;
-	}
+	if (!ptr)
+		RET_ERR(TBL_E_INVALID_DATA);
 
 	strlen = strtol(handle->ptr, &endptr, 10);
-	if (endptr != ptr) {
-		handle->err = TBL_E_INVALID_DATA;
-		return;
-	}
+	if (endptr != ptr)
+		RET_ERR(TBL_E_INVALID_DATA);
 	else if (endptr + 1 + strlen > handle->end) {
 		strlen = 0;
-		handle->err = TBL_E_INVALID_DATA;
-		return;
+		RET_ERR(TBL_E_INVALID_DATA);
 	}
 	else {
-		if (event_fn(handle->ctx, endptr + 1, strlen)) {
-			handle->err = TBL_E_CANCELED_BY_USER;
-			return;
-		}
+		if (event_fn(handle->ctx, endptr + 1, strlen))
+			RET_ERR(TBL_E_CANCELED_BY_USER);
 		handle->ptr = endptr + 1 + strlen;
 	}
 }
@@ -87,33 +74,30 @@ static void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 static void parse_list(const tbl_callbacks_t *callbacks,
                        tbl_handle_t          *handle)
 {
-	if (callbacks->tbl_list_start(handle->ctx)) {
-		handle->err = TBL_E_CANCELED_BY_USER;
-		return;
-	}
-
+	/* list start */
+	if (callbacks->tbl_list_start(handle->ctx))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
+	/* entries */
 	handle->ptr++;
 	while(*handle->ptr != 'e') {
 		parse_internal(callbacks, handle);
 		if (handle->err != TBL_E_NONE)
 			return;
 	}
+	/* list end */
+	if (callbacks->tbl_list_end(handle->ctx))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
 
-	if (callbacks->tbl_list_end(handle->ctx)) {
-		handle->err = TBL_E_CANCELED_BY_USER;
-		return;
-	}
 	handle->ptr++; /* skip 'e' */
 }
 
 static void parse_dict(const tbl_callbacks_t *callbacks,
                        tbl_handle_t          *handle)
 {
-	if (callbacks->tbl_dict_start(handle->ctx)) {
-		handle->err = TBL_E_CANCELED_BY_USER;
-		return;
-	}
-
+	/* dict start */
+	if (callbacks->tbl_dict_start(handle->ctx))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
+	/* keys + entries */
 	handle->ptr++;
 	while(*handle->ptr != 'e') {
 		parse_string(callbacks->tbl_dict_key, handle);
@@ -123,11 +107,9 @@ static void parse_dict(const tbl_callbacks_t *callbacks,
 		if (handle->err != TBL_E_NONE)
 			return;
 	}
-
-	if (callbacks->tbl_dict_end(handle->ctx)) {
-		handle->err = TBL_E_CANCELED_BY_USER;
-		return;
-	}
+	/* dict end */
+	if (callbacks->tbl_dict_end(handle->ctx))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
 
 	handle->ptr++; /* skip 'e' */
 }
@@ -135,11 +117,10 @@ static void parse_dict(const tbl_callbacks_t *callbacks,
 static void parse_internal(const tbl_callbacks_t *callbacks,
                            tbl_handle_t          *handle)
 {
-	if ((handle->ptr >= handle->end) || (!callbacks)) {
-		handle->err = TBL_E_INVALID_DATA;
-		return;
-	}
+	if ((handle->ptr >= handle->end) || (!callbacks))
+		RET_ERR(TBL_E_INVALID_DATA);
 
+	/* get type of next entry */
 	if (*handle->ptr == 'i')
 		parse_integer(callbacks->tbl_integer, handle);
 	else if (isdigit(*handle->ptr) != 0)
@@ -153,9 +134,9 @@ static void parse_internal(const tbl_callbacks_t *callbacks,
 }
 
 TBL_API tbl_error_t tbl_parse(const tbl_callbacks_t *callbacks,
-                                  void                  *ctx,
-                                  const char            *buf,
-                                  const char            *bufend)
+                              void                  *ctx,
+                              const char            *buf,
+                              const char            *bufend)
 {
 	tbl_handle_t handle = { TBL_E_NONE, buf, bufend, ctx };
 	if ((handle.ptr >= handle.end) || (!callbacks))

@@ -13,12 +13,12 @@
 
 #define RET_ERR(errtype) do { handle->err = errtype; return; } while(0)
 
-typedef struct tbl_handle {
+struct tbl_handle {
 	tbl_error_t err;
 	const char *ptr;
 	const char *end;
 	void       *ctx;
-} tbl_handle_t;
+};
 
 static void parse_internal(const tbl_callbacks_t *callbacks,
                            tbl_handle_t          *handle);

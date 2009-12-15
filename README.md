@@ -14,7 +14,7 @@ There is no documentation yet but the api is pretty self exlpaining.
 
 Compilation
 -----------
-To compile the bencode_tojson example you need [yajl](http://github.com/lloyd/yajl)
+To compile the bencode_to_json example you need [yajl](http://github.com/lloyd/yajl)
 
 	mkdir build
 	cd build

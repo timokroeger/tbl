@@ -1,1 +1,1 @@
-add_subdirectory(tojson)
+add_subdirectory(bencode_to_json)

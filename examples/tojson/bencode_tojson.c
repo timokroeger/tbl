@@ -14,36 +14,50 @@ typedef struct str { size_t len; char *str; } str_t;
 
 static int tbl_integer(void *ctx, long value)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_integer(gen, value);
 	return 0;
 }
 
 static int tbl_string(void *ctx, char *value, size_t length)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_string(gen, value, length);
 	return 0;
 }
 
 static int tbl_list_start(void *ctx)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_array_open(gen);
 	return 0;
 }
 
 static int tbl_list_end(void *ctx)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_array_close(gen);
 	return 0;
 }
 
 static int tbl_dict_start(void *ctx)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_map_open(gen);
 	return 0;
 }
 
 static int tbl_dict_key(void *ctx, char *value, size_t length)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_string(gen, value, length);
 	return 0;
 }
 
 static int tbl_dict_end(void *ctx)
 {
+	yajl_gen gen = (yajl_gen)ctx;
+	yajl_gen_map_close(gen);
 	return 0;
 }
 
@@ -62,25 +76,40 @@ int main(int argc, char *argv[])
 {
 	FILE *file;
 	size_t filesize;
-	char *buf;
+	char *bufin;
+	const unsigned char *buf;
 	yajl_gen gen;
 	yajl_gen_config config = { 1, "  " };
 	
-	if (argc != 2)
+	if (argc != 2) {
+		puts("usage: bencode_tojson file");
 		return -1;
+	}
+	
+	file = fopen(argv[1], "rb");
+	if (!file) {
+		puts("file not found");
+		return -1;
+	}
 	
 	fseek(file, 0, SEEK_END);
 	filesize = ftell(file);
 	rewind(file);
 	
-	buf = malloc(filesize);
-	if (!buf)
+	if (!(bufin = (char *)malloc(filesize)))
 		return -1;
-	if (fread(buf, filesize, 1, file) != 1)
+	if (fread(bufin, filesize, 1, file) != 1)
 		return -1;
 	
 	gen = yajl_gen_alloc(&config, NULL);
-	return tbl_parse(&callbacks, gen, buf, buf + filesize);
+	tbl_parse(&callbacks, gen, bufin, bufin + filesize);
+	free(bufin);
+	filesize = 65536;
+	if (!((unsigned char *)malloc(filesize)))
+		return -1;
+	
+	yajl_gen_get_buf(gen, &buf, &filesize);
+	puts(buf);
 	
 	return 0;
 }

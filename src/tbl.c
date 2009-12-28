@@ -20,11 +20,21 @@ struct tbl_handle {
 	void       *ctx;
 };
 
+/* "low level parsing", the callback is passed so parse_string can call either
+ * the string callback or the dict key callback */
+static void parse_integer(int(*event_fn)(void *ctx, long value),
+                          tbl_handle_t *handle);
+static void parse_string (int (*event_fn)(void *ctx, char *value, size_t length),
+                          tbl_handle_t *handle);
+/* fucntions to parse container types */
+static void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
+static void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
+/* gets the first char of the buffer to decide which parse_* to called */
 static void parse_internal(const tbl_callbacks_t *callbacks,
                            tbl_handle_t          *handle);
 
-static void parse_integer(int(*event_fn)(void *ctx, long value),
-                          tbl_handle_t *handle)
+void parse_integer(int(*event_fn)(void *ctx, long value),
+                   tbl_handle_t *handle)
 {
 	long value;
 	void *ptr;
@@ -46,8 +56,8 @@ static void parse_integer(int(*event_fn)(void *ctx, long value),
 	}
 }
 
-static void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
-                         tbl_handle_t *handle)
+void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
+                  tbl_handle_t *handle)
 {
 	size_t strlen;
 	void *ptr;
@@ -71,8 +81,7 @@ static void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 	}
 }
 
-static void parse_list(const tbl_callbacks_t *callbacks,
-                       tbl_handle_t          *handle)
+void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
 	/* list start */
 	if (callbacks->tbl_list_start(handle->ctx))
@@ -91,8 +100,7 @@ static void parse_list(const tbl_callbacks_t *callbacks,
 	handle->ptr++; /* skip 'e' */
 }
 
-static void parse_dict(const tbl_callbacks_t *callbacks,
-                       tbl_handle_t          *handle)
+void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
 	/* dict start */
 	if (callbacks->tbl_dict_start(handle->ctx))
@@ -114,20 +122,21 @@ static void parse_dict(const tbl_callbacks_t *callbacks,
 	handle->ptr++; /* skip 'e' */
 }
 
-static void parse_internal(const tbl_callbacks_t *callbacks,
-                           tbl_handle_t          *handle)
+void parse_internal(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
+	char c = *handle->ptr;
+
 	if ((handle->ptr >= handle->end) || (!callbacks))
 		RET_ERR(TBL_E_INVALID_DATA);
 
 	/* get type of next entry */
-	if (*handle->ptr == 'i')
+	if (c == 'i')
 		parse_integer(callbacks->tbl_integer, handle);
-	else if (isdigit(*handle->ptr) != 0)
+	else if (isdigit(c) != 0)
 		parse_string(callbacks->tbl_string, handle);
-	else if (*handle->ptr == 'l')
+	else if (c == 'l')
 		parse_list(callbacks, handle);
-	else if (*handle->ptr == 'd')
+	else if (c == 'd')
 		parse_dict(callbacks, handle);
 	else
 		handle->err = TBL_E_INVALID_DATA;

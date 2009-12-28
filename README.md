@@ -1,20 +1,17 @@
 tbl - tiny bencode library
 ==========================
-*tbl* is a tiny event driven [bencode](http://en.wikipedia.org/wiki/Bencode) library written in c.
+*tbl* is a tiny event driven [bencode] library written in c. It's api is
+similar to the one of [yajl].
 
 It's supposed to be
 
 * fast
 * small
-* simple to use
-
-Documentation
--------------
-There is no documentation yet but the api is pretty self exlpaining.
+* easy to use
 
 Compilation
 -----------
-To compile the bencode_to_json example you need [yajl](http://github.com/lloyd/yajl)
+To compile the bencode_to_json example you need [yajl].
 
 	mkdir build
 	cd build
@@ -24,3 +21,6 @@ To compile the bencode_to_json example you need [yajl](http://github.com/lloyd/y
 Licence
 -------
 *tbl* is released under WTFPL so you can do what the fuck you want.
+
+[bencode]: (http://en.wikipedia.org/wiki/Bencode)
+[yajl]: (http://github.com/lloyd/yajl)

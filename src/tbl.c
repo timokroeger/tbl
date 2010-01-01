@@ -69,10 +69,8 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 	strlen = strtol(handle->ptr, &endptr, 10);
 	if (endptr != ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
-	else if (endptr + 1 + strlen > handle->end) {
-		strlen = 0;
+	else if (endptr + 1 + strlen > handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
-	}
 	else {
 		if (event_fn(handle->ctx, endptr + 1, strlen))
 			RET_ERR(TBL_E_CANCELED_BY_USER);

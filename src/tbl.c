@@ -5,7 +5,6 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details. */
 
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
 #include <ctype.h>
 

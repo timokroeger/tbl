@@ -51,12 +51,14 @@ TBL_API tbl_error_t tbl_parse(const tbl_callbacks_t *callbacks,
                               const char            *bufend);
 
 /* only prototypes; nothing of this is implemented yet */
+/*
 TBL_API int tbl_gen_integer(tbl_handle_t *handle, long value);
 TBL_API int tbl_gen_string(tbl_handle_t *handle, const char *str, size_t len);
 TBL_API int tbl_gen_dict_open(tbl_handle_t *handle);
 TBL_API int tbl_gen_dict_close(tbl_handle_t *handle);
 TBL_API int tbl_gen_list_open(tbl_handle_t *handle);
 TBL_API int tbl_gen_list_close(tbl_handle_t *handle);
+*/
 
 #ifdef __cplusplus
 }

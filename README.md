@@ -1,6 +1,6 @@
 tbl - tiny bencode library
 ==========================
-*tbl* is a tiny event driven [bencode] library written in c. It's api is
+*tbl* is a tiny event driven [bencode] library written in c. Its api is
 similar to the one of [yajl].
 
 It's supposed to be

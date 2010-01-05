@@ -49,9 +49,11 @@ void parse_integer(int(*event_fn)(void *ctx, long value),
 	else if(value && *(handle->ptr + 1) == '0') /* i0e is still valid */
 		RET_ERR(TBL_E_INVALID_DATA);
 	else {
-		if (event_fn(handle->ctx, value))
-			RET_ERR(TBL_E_CANCELED_BY_USER);
-		handle->ptr = endptr + 1;
+		if (event_fn)
+			if (event_fn(handle->ctx, value))
+				RET_ERR(TBL_E_CANCELED_BY_USER);
+
+		handle->ptr = endptr + 1; /* skip 'e' */
 	}
 }
 
@@ -72,17 +74,20 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 	else if (endptr + 1 + strlen > handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
 	else {
-		if (event_fn(handle->ctx, endptr + 1, strlen))
-			RET_ERR(TBL_E_CANCELED_BY_USER);
-		handle->ptr = endptr + 1 + strlen;
+		if (event_fn)
+			if (event_fn(handle->ctx, endptr + 1, strlen))
+				RET_ERR(TBL_E_CANCELED_BY_USER);
+
+		handle->ptr = endptr + 1 + strlen; /* jump to next token */
 	}
 }
 
 void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
 	/* list start */
-	if (callbacks->tbl_list_start(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+	if (callbacks->tbl_list_start)
+		if (callbacks->tbl_list_start(handle->ctx))
+			RET_ERR(TBL_E_CANCELED_BY_USER);
 	/* entries */
 	handle->ptr++;
 	while(*handle->ptr != 'e') {
@@ -91,8 +96,9 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 			return;
 	}
 	/* list end */
-	if (callbacks->tbl_list_end(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+	if (callbacks->tbl_list_end)
+		if (callbacks->tbl_list_end(handle->ctx))
+			RET_ERR(TBL_E_CANCELED_BY_USER);
 
 	handle->ptr++; /* skip 'e' */
 }
@@ -100,8 +106,10 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
 	/* dict start */
-	if (callbacks->tbl_dict_start(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+	if (callbacks->tbl_dict_start)
+		if (callbacks->tbl_dict_start(handle->ctx))
+			RET_ERR(TBL_E_CANCELED_BY_USER);
+
 	/* keys + entries */
 	handle->ptr++;
 	while(*handle->ptr != 'e') {
@@ -113,8 +121,9 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 			return;
 	}
 	/* dict end */
-	if (callbacks->tbl_dict_end(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+	if (callbacks->tbl_dict_end)
+		if (callbacks->tbl_dict_end(handle->ctx))
+			RET_ERR(TBL_E_CANCELED_BY_USER);
 
 	handle->ptr++; /* skip 'e' */
 }

@@ -30,40 +30,14 @@ static int tbl_string(void *ctx, char *value, size_t length)
 	return 0;
 }
 
-static int tbl_list_start(void *ctx)
-{
-	return 0;
-}
-
-static int tbl_list_end(void *ctx)
-{
-	return 0;
-}
-
-static int tbl_dict_start(void *ctx)
-{
-	return 0;
-}
-
-static int tbl_dict_key(void *ctx, char *value, size_t length)
-{
-	return 0;
-}
-
-static int tbl_dict_end(void *ctx)
-{
-	return 0;
-}
-
-
 static tbl_callbacks_t callbacks = {
 	tbl_integer,
 	tbl_string,
-	tbl_list_start,
-	tbl_list_end,
-	tbl_dict_start,
-	tbl_dict_key,
-	tbl_dict_end
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 static void test_integer()

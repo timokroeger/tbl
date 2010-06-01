@@ -40,6 +40,17 @@ static tbl_callbacks_t callbacks = {
 	NULL
 };
 
+static void test_common()
+{
+	char *ptr;
+	long result;
+	tbl_error_t err;
+
+	/* empty buffer */
+	err = tbl_parse(ptr, ptr, &callbacks, &result);
+	assert(err == TBL_E_NONE);
+}
+
 static void test_integer()
 {
 	char buf[8];
@@ -69,7 +80,7 @@ static void test_integer()
 	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 
-	/* bad integers */
+	/* malformed integers */
 	sprintf(buf, "ia28ze");
 	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);
@@ -80,10 +91,6 @@ static void test_integer()
 	/* missing 'e' */
 	sprintf(buf, "i12345");
 	err = tbl_parse(buf, buf + 6, &callbacks, &result);
-	assert(err != TBL_E_NONE);
-
-	/* empty buffer */
-	err = tbl_parse(buf, buf, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 }
 
@@ -124,6 +131,7 @@ static void test_dict()
 
 int main(void)
 {
+	test_common();
 	test_integer();
 	test_string();
 	test_list();

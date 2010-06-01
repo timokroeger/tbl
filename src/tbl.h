@@ -9,16 +9,6 @@
 
 #include <stddef.h> /* size_t */
 
-#if defined(_WIN32) && defined(TBL_SHARED)
-#  ifdef TBL_BUILD
-#    define TBL_API __declspec(dllexport)
-#  else
-#    define TBL_API __declspec(dllimport)
-#  endif
-#else
-#  define TBL_API
-#endif
-
 #ifdef __cplusplus
 extern C {
 #endif
@@ -34,7 +24,7 @@ typedef struct tbl_handle tbl_handle_t;
 
 /* parsing is stopped if a callback returns something else than 0 */
 typedef struct tbl_callbacks {
-	int (*tbl_integer)   (void *ctx, long value);
+	int (*tbl_integer)   (void *ctx, long long value);
 	int (*tbl_string)    (void *ctx, char *value, size_t length);
 
 	int (*tbl_list_start)(void *ctx);
@@ -45,19 +35,19 @@ typedef struct tbl_callbacks {
 	int (*tbl_dict_end)  (void *ctx);
 } tbl_callbacks_t;
 
-TBL_API tbl_error_t tbl_parse(const tbl_callbacks_t *callbacks,
-                              void                  *ctx,
-                              const char            *buf,
-                              const char            *bufend);
+tbl_error_t tbl_parse(const char            *buf,
+                      const char            *bufend,
+                      const tbl_callbacks_t *callbacks,
+                      void                  *ctx);
 
 /* only prototypes; nothing of this is implemented yet */
 /*
-TBL_API int tbl_gen_integer(tbl_handle_t *handle, long value);
-TBL_API int tbl_gen_string(tbl_handle_t *handle, const char *str, size_t len);
-TBL_API int tbl_gen_dict_open(tbl_handle_t *handle);
-TBL_API int tbl_gen_dict_close(tbl_handle_t *handle);
-TBL_API int tbl_gen_list_open(tbl_handle_t *handle);
-TBL_API int tbl_gen_list_close(tbl_handle_t *handle);
+int tbl_gen_integer(tbl_handle_t *handle, long value);
+int tbl_gen_string(tbl_handle_t *handle, const char *str, size_t len);
+int tbl_gen_dict_open(tbl_handle_t *handle);
+int tbl_gen_dict_close(tbl_handle_t *handle);
+int tbl_gen_list_open(tbl_handle_t *handle);
+int tbl_gen_list_close(tbl_handle_t *handle);
 */
 
 #ifdef __cplusplus

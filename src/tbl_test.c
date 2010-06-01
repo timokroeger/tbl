@@ -13,7 +13,7 @@
 
 typedef struct str { size_t len; char *str; } str_t;
 
-static int tbl_integer(void *ctx, long value)
+static int tbl_integer(void *ctx, long long value)
 {
 	if (*(long *)ctx != value)
 		return -1;
@@ -49,41 +49,41 @@ static void test_integer()
 	/* positive integer */
 	sprintf(buf, "i1234e");
 	result = 1234;
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err == TBL_E_NONE);
 
 	/* negative integer */
 	sprintf(buf, "i-123e");
 	result = -123;
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err == TBL_E_NONE);
 	
 	/* zero */
 	sprintf(buf, "i0e");
 	result = 0;
-	err = tbl_parse(&callbacks, &result, buf, buf + 3);
+	err = tbl_parse(buf, buf + 3, &callbacks, &result);
 	assert(err == TBL_E_NONE);
 
 	/* no leading zeroes allowed */
 	sprintf(buf, "i0012e");
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 
 	/* bad integers */
 	sprintf(buf, "ia28ze");
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 	sprintf(buf, "i28e9e");
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 
 	/* missing 'e' */
 	sprintf(buf, "i12345");
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 
 	/* empty buffer */
-	err = tbl_parse(&callbacks, &result, buf, buf);
+	err = tbl_parse(buf, buf, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 }
 
@@ -97,18 +97,18 @@ static void test_string()
 	sprintf(buf, "4:test");
 	result.len = 4;
 	result.str = "test";
-	err = tbl_parse(&callbacks, &result, buf, buf + 6);
+	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err == TBL_E_NONE);
 
 	/* string too long */
-	err = tbl_parse(&callbacks, &result, buf, buf + 5);
+	err = tbl_parse(buf, buf + 5, &callbacks, &result);
 	assert(err != TBL_E_NONE);
 
 	/* empty */
 	sprintf(buf, "0:");
 	result.len = 0;
 	result.str = "";
-	err = tbl_parse(&callbacks, &result, buf, buf + 2);
+	err = tbl_parse(buf, buf + 2, &callbacks, &result);
 	assert(err == TBL_E_NONE);
 }
 

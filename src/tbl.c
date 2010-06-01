@@ -21,10 +21,10 @@ struct tbl_handle {
 
 /* "low level parsing", the callback is passed so parse_string can call either
  * the string callback or the dict key callback */
-static void parse_integer(int(*event_fn)(void *ctx, long value),
+static void parse_integer(int (*event_fn)(void *ctx, long long value),
                           tbl_handle_t *handle);
-static void parse_string (int (*event_fn)(void *ctx, char *value, size_t length),
-                          tbl_handle_t *handle);
+static void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
+                         tbl_handle_t *handle);
 /* fucntions to parse container types */
 static void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
 static void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
@@ -32,10 +32,10 @@ static void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
 static void parse_internal(const tbl_callbacks_t *callbacks,
                            tbl_handle_t          *handle);
 
-void parse_integer(int(*event_fn)(void *ctx, long value),
+void parse_integer(int (*event_fn)(void *ctx, long long value),
                    tbl_handle_t *handle)
 {
-	long value;
+	long long value;
 	void *ptr;
 	char *endptr;
 
@@ -43,7 +43,7 @@ void parse_integer(int(*event_fn)(void *ctx, long value),
 	if (!ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 
-	value = strtol(handle->ptr + 1, &endptr, 10);
+	value = strtoll(handle->ptr + 1, &endptr, 10);
 	if (endptr != ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 	else if(value && *(handle->ptr + 1) == '0') /* i0e is still valid */
@@ -148,10 +148,10 @@ void parse_internal(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 		handle->err = TBL_E_INVALID_DATA;
 }
 
-TBL_API tbl_error_t tbl_parse(const tbl_callbacks_t *callbacks,
-                              void                  *ctx,
-                              const char            *buf,
-                              const char            *bufend)
+tbl_error_t tbl_parse(const char            *buf,
+                      const char            *bufend,
+                      const tbl_callbacks_t *callbacks,
+                      void                  *ctx)
 {
 	tbl_handle_t handle = { TBL_E_NONE, buf, bufend, ctx };
 	if ((handle.ptr >= handle.end) || (!callbacks))

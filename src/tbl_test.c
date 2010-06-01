@@ -49,6 +49,10 @@ static void test_common()
 	/* empty buffer */
 	err = tbl_parse(ptr, ptr, &callbacks, &result);
 	assert(err == TBL_E_NONE);
+
+	/* no callbacks */
+	err = tbl_parse(ptr, ++ptr, NULL, &result);
+	assert(err == TBL_E_NO_CALLBACKS);
 }
 
 static void test_integer()

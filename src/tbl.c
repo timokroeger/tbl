@@ -38,45 +38,41 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 	void *ptr;
 	char *endptr;
 
-	ptr = memchr(handle->ptr + 1, 'e', (handle->end - handle->ptr) - 1);
+	ptr = memchr(handle->ptr, 'e', handle->end - handle->ptr);
 	if (!ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 
-	value = strtoll(handle->ptr + 1, &endptr, 10);
+	value = strtoll(handle->ptr, &endptr, 10);
 	if (endptr != ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
-	else if(value && *(handle->ptr + 1) == '0') /* i0e is still valid */
+	else if (value && (*handle->ptr == '0')) /* i0e is still valid */
 		RET_ERR(TBL_E_INVALID_DATA);
-	else {
-		if (event_fn && event_fn(handle->ctx, value))
-			RET_ERR(TBL_E_CANCELED_BY_USER);
-
+	else if (event_fn && event_fn(handle->ctx, value))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
+	else
 		handle->ptr = endptr + 1; /* skip 'e' */
-	}
 }
 
 void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
                   tbl_handle_t *handle)
 {
-	size_t strlen;
+	size_t len;
 	void *ptr;
 	char *endptr;
 
-	ptr = memchr(handle->ptr, ':', handle->end - handle->ptr);
+	ptr = memchr(handle->ptr--, ':', handle->end - handle->ptr);
 	if (!ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 
-	strlen = strtol(handle->ptr, &endptr, 10);
-	if (endptr != ptr)
+	len = strtol(handle->ptr, &endptr, 10);
+	if (endptr++ != ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
-	else if (endptr + 1 + strlen > handle->end)
+	else if (endptr + len > handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
-	else {
-		if (event_fn && event_fn(handle->ctx, endptr + 1, strlen))
-			RET_ERR(TBL_E_CANCELED_BY_USER);
-
-		handle->ptr = endptr + 1 + strlen; /* jump to next token */
-	}
+	else if (event_fn && event_fn(handle->ctx, endptr, len))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
+	else
+		handle->ptr = endptr + len; /* jump to next token */
 }
 
 void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
@@ -86,7 +82,6 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 		if (callbacks->tbl_list_start(handle->ctx))
 			RET_ERR(TBL_E_CANCELED_BY_USER);
 	/* entries */
-	handle->ptr++; /* skip 'l' */
 	while(*handle->ptr != 'e') {
 		parse_next(callbacks, handle);
 		if (handle->err != TBL_E_NONE)
@@ -106,7 +101,6 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 
 	/* keys + entries */
-	handle->ptr++; /* skip 'd' */
 	while(*handle->ptr != 'e') {
 		parse_string(callbacks->tbl_dict_key, handle);
 		if (handle->err != TBL_E_NONE)
@@ -124,7 +118,7 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 
 void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
-	char c = *handle->ptr;
+	char c = *handle->ptr++;
 
 	if ((handle->ptr >= handle->end) || (!callbacks))
 		RET_ERR(TBL_E_INVALID_DATA);
@@ -142,16 +136,14 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 		handle->err = TBL_E_INVALID_DATA;
 }
 
-tbl_error_t tbl_parse(const char            *buf,
-                      const char            *bufend,
-                      const tbl_callbacks_t *callbacks,
-                      void                  *ctx)
+tbl_error_t tbl_parse(const char *buf, const char *bufend,
+                      const tbl_callbacks_t *callbacks, void *ctx)
 {
 	tbl_handle_t handle = { TBL_E_NONE, buf, bufend, ctx };
 	if (!callbacks)
 		return TBL_E_NO_CALLBACKS;
 
-	while ((handle.ptr < handle.end) && (handle.err == TBL_E_NONE))
+	while (handle.ptr < handle.end && handle.err == TBL_E_NONE)
 		parse_next(callbacks, &handle);
 
 	return handle.err;

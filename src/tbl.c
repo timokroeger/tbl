@@ -154,12 +154,12 @@ tbl_error_t tbl_parse(const char            *buf,
                       void                  *ctx)
 {
 	tbl_handle_t handle = { TBL_E_NONE, buf, bufend, ctx };
-	if ((handle.ptr >= handle.end) || (!callbacks))
-		return TBL_E_INVALID_DATA;
+	if (!callbacks)
+		return TBL_E_NO_CALLBACKS;
 
-	while (handle.ptr < handle.end && handle.err == TBL_E_NONE) {
+	while (handle.ptr < handle.end && handle.err == TBL_E_NONE)
 		parse_internal(callbacks, &handle);
-	}
 
 	return handle.err;
 }
+

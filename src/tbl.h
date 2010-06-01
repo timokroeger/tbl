@@ -17,6 +17,7 @@ typedef enum {
 	TBL_E_NONE,
 	TBL_E_INVALID_DATA,
 	TBL_E_CANCELED_BY_USER,
+	TBL_E_NO_CALLBACKS,
 	TBL_E_UNKNOWN
 } tbl_error_t;
 

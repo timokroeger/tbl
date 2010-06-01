@@ -128,5 +128,6 @@ int main(void)
 	test_string();
 	test_list();
 	test_dict();
+	puts("all tests passed");
 	return 0;
 }

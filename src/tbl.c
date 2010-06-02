@@ -36,21 +36,27 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 {
 	long long value;
 	void *ptr;
+#ifndef WIN32
 	char *endptr;
+#endif
 
 	ptr = memchr(handle->ptr, 'e', handle->end - handle->ptr);
 	if (!ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 
+#ifdef WIN32
+	value = _atoi64(handle->ptr);
+#else
 	value = strtoll(handle->ptr, &endptr, 10);
 	if (endptr != ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
+#endif
 	if (value && (*handle->ptr == '0')) /* i0e is still valid */
 		RET_ERR(TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, value))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 
-	handle->ptr = endptr + 1; /* skip 'e' */
+	handle->ptr = ptr + 1; /* skip 'e' */
 }
 
 void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),

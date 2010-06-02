@@ -90,7 +90,7 @@ static void test_integer()
 	err = tbl_parse(buf, buf + 3, &callbacks, &result);
 	assert(err == TBL_E_NONE);
 
-	/* no leading zeroes allowed */
+	/* no preceding zeroes allowed */
 	sprintf(buf, "i0012e");
 	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err != TBL_E_NONE);

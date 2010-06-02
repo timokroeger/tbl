@@ -84,9 +84,8 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
 	/* list start */
-	if (callbacks->tbl_list_start)
-		if (callbacks->tbl_list_start(handle->ctx))
-			RET_ERR(TBL_E_CANCELED_BY_USER);
+	if (callbacks->tbl_list_start && callbacks->tbl_list_start(handle->ctx))
+		RET_ERR(TBL_E_CANCELED_BY_USER);
 	/* entries */
 	while(*handle->ptr != 'e') {
 		parse_next(callbacks, handle);

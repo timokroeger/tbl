@@ -36,31 +36,32 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
                    tbl_handle_t *handle)
 {
 	long long value;
-	void *ptr;
-#ifndef WIN32
-	char *endptr;
-#endif
+	const char *p, *q;
 
-	ptr = memchr(handle->ptr, 'e', handle->end - handle->ptr);
-	if (!ptr)
+	q = (void *)memchr(handle->ptr, 'e', handle->end - handle->ptr);
+	if (!q)
 		RET_ERR(TBL_E_INVALID_DATA);
 
 #ifdef WIN32
+	p = handle->ptr;
 	value = _atoi64(handle->ptr);
+	/* dirty hack to look for the end of the number */
+	while(*p == '-' || isdigit(*p))
+		p++;
 #else
-	value = strtoll(handle->ptr, &endptr, 10);
-	if (endptr != ptr)
-		RET_ERR(TBL_E_INVALID_DATA);
+	value = strtoll(handle->ptr, &p, 10);
 #endif
-	/* preceding 0 arent't allowd and 'i0e is still valid */
-	if (value && *handle->ptr == '0' || errno == ERANGE)
+
+	if (p != q || errno == ERANGE)
+		RET_ERR(TBL_E_INVALID_DATA);
+	/* preceding 0 arent't allowed and i0e is still valid */
+	if (value && *handle->ptr == '0')
 		RET_ERR(TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, value))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 
-	handle->ptr = (char *)ptr + 1; /* skip 'e' */
+	handle->ptr = q + 1; /* skip e */
 }
-
 void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
                   tbl_handle_t *handle)
 {

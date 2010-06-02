@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include <assert.h>
+
 #include "tbl.h"
 
 #define RET_ERR(errtype) do { handle->err = errtype; return; } while(0)
@@ -62,6 +64,7 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 
 	handle->ptr = q + 1; /* skip e */
 }
+
 void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
                   tbl_handle_t *handle)
 {
@@ -73,7 +76,7 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 		RET_ERR(TBL_E_INVALID_DATA);
 
 	len = strtol(handle->ptr, &endptr, 10);
-	if (errno == ERANGE || endptr++ != ptr || endptr + len >= handle->end)
+	if (errno == ERANGE || endptr != ptr || ++endptr + len > handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, endptr, len))
 		RET_ERR(TBL_E_CANCELED_BY_USER);

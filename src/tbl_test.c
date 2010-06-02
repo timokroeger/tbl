@@ -15,7 +15,7 @@ typedef struct str { size_t len; char *str; } str_t;
 
 static int tbl_integer(void *ctx, long long value)
 {
-	if (*(long *)ctx != value)
+	if (*(long long *)ctx != value)
 		return -1;
 	return 0;
 }
@@ -57,8 +57,8 @@ static void test_common()
 
 static void test_integer()
 {
-	char buf[8];
-	long result;
+	char buf[32];
+	long long result;
 	tbl_error_t err;
 
 	/* positive integer */
@@ -72,7 +72,18 @@ static void test_integer()
 	result = -123;
 	err = tbl_parse(buf, buf + 6, &callbacks, &result);
 	assert(err == TBL_E_NONE);
+
+	/* big integer */
+	sprintf(buf, "i123456789123e");
+	result = 123456789123;
+	err = tbl_parse(buf, buf + 14, &callbacks, &result);
+	assert(err == TBL_E_NONE);
 	
+	/* too big integer */
+	sprintf(buf, "i123456789123456789123456789e");
+	err = tbl_parse(buf, buf + 14, &callbacks, &result);
+	assert(err != TBL_E_NONE);
+
 	/* zero */
 	sprintf(buf, "i0e");
 	result = 0;

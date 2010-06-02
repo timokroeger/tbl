@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "tbl.h"
 
@@ -51,7 +52,8 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 	if (endptr != ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 #endif
-	if (value && (*handle->ptr == '0')) /* i0e is still valid */
+	/* preceding 0 arent't allowd and 'i0e is still valid */
+	if (value && *handle->ptr == '0' || errno == ERANGE)
 		RET_ERR(TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, value))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
@@ -71,9 +73,7 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 		RET_ERR(TBL_E_INVALID_DATA);
 
 	len = strtol(handle->ptr, &endptr, 10);
-	if (endptr++ != ptr)
-		RET_ERR(TBL_E_INVALID_DATA);
-	if (endptr + len > handle->end)
+	if (endptr++ != ptr || endptr + len > handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, endptr, len))
 		RET_ERR(TBL_E_CANCELED_BY_USER);

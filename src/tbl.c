@@ -36,14 +36,14 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
                    tbl_handle_t *handle)
 {
 	long long value;
-	const char *p, *q;
+	char *p, *q;
 
-	q = (void *)memchr(handle->ptr, 'e', handle->end - handle->ptr);
+	q = memchr(handle->ptr, 'e', handle->end - handle->ptr);
 	if (!q)
 		RET_ERR(TBL_E_INVALID_DATA);
 
 #ifdef WIN32
-	p = handle->ptr;
+	p = (char *)handle->ptr;
 	value = _atoi64(handle->ptr);
 	/* dirty hack to look for the end of the number */
 	while(*p == '-' || isdigit(*p))
@@ -66,15 +66,14 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
                   tbl_handle_t *handle)
 {
 	size_t len;
-	void *ptr;
-	char *endptr;
+	char *ptr, *endptr;
 
 	ptr = memchr(handle->ptr--, ':', handle->end - handle->ptr);
 	if (!ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 
 	len = strtol(handle->ptr, &endptr, 10);
-	if (endptr++ != ptr || endptr + len > handle->end)
+	if (errno == ERANGE || endptr++ != ptr || endptr + len >= handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, endptr, len))
 		RET_ERR(TBL_E_CANCELED_BY_USER);

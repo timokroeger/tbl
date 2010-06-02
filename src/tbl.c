@@ -56,7 +56,7 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 	if (event_fn && event_fn(handle->ctx, value))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 
-	handle->ptr = ptr + 1; /* skip 'e' */
+	handle->ptr = (char *)ptr + 1; /* skip 'e' */
 }
 
 void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),

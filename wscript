@@ -22,14 +22,8 @@ def build(bld):
     bld(
         features     = ['cc', 'cprogram'],
         target       = 'test',
-        source       = 'src/tbl_test.c',
-        uselib_local = 'tbl'
-    )
-
-    bld(
-        features     = ['cc', 'cprogram'],
-        target       = 'bench',
-        source       = 'src/bench.c',
+        source       = 'tests/tbl.c',
+        includes     = 'src',
         uselib_local = 'tbl'
     )
 

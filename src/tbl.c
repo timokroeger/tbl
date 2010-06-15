@@ -48,7 +48,7 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 	p = (char *)handle->ptr;
 	value = _atoi64(handle->ptr);
 	/* dirty hack to look for the end of the number */
-	while(*p == '-' || isdigit(*p))
+	while (*p == '-' || isdigit(*p))
 		p++;
 #else
 	value = strtoll(handle->ptr, &p, 10);
@@ -90,7 +90,7 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 	if (callbacks->tbl_list_start && callbacks->tbl_list_start(handle->ctx))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 	/* entries */
-	while(*handle->ptr != 'e') {
+	while (*handle->ptr != 'e') {
 		parse_next(callbacks, handle);
 		if (handle->err != TBL_E_NONE)
 			return;
@@ -109,7 +109,7 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 
 	/* keys + entries */
-	while(*handle->ptr != 'e') {
+	while (*handle->ptr != 'e') {
 		parse_string(callbacks->tbl_dict_key, handle);
 		if (handle->err != TBL_E_NONE)
 			return;

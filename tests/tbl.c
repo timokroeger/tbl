@@ -11,7 +11,10 @@
 #include "minunit.h"
 #include "tbl.h"
 
-typedef struct str { size_t len; char *str; } str_t;
+typedef struct str {
+	size_t len;
+	char *str;
+} str_t;
 
 int tests_run;
 
@@ -49,12 +52,12 @@ static char *test_common()
 	tbl_error_t err;
 
 	err = tbl_parse(ptr, 0, &callbacks, &result);
-  mu_assert("empty buffer", err == TBL_E_NONE);
+	mu_assert("empty buffer", err == TBL_E_NONE);
 
 	err = tbl_parse(ptr, 19, NULL, &result);
-  mu_assert("no callbacks", err == TBL_E_NO_CALLBACKS);
+	mu_assert("no callbacks", err == TBL_E_NO_CALLBACKS);
 
-  return NULL;
+	return NULL;
 }
 
 static char *test_integer()
@@ -66,7 +69,7 @@ static char *test_integer()
 	sprintf(buf, "i1234e");
 	result = 1234;
 	err = tbl_parse(buf, 6, &callbacks, &result);
-  mu_assert("positive integer", err == TBL_E_NONE);
+	mu_assert("positive integer", err == TBL_E_NONE);
 
 	sprintf(buf, "i-123e");
 	result = -123;
@@ -99,7 +102,7 @@ static char *test_integer()
 	err = tbl_parse(buf, 6, &callbacks, &result);
 	mu_assert("missing 'e'", err == TBL_E_INVALID_DATA);
 
-  return NULL;
+	return NULL;
 }
 
 static char *test_string()
@@ -112,28 +115,28 @@ static char *test_string()
 	result.len = 4;
 	result.str = "test";
 	err = tbl_parse(buf, 6, &callbacks, &result);
-  mu_assert("simple string", err == TBL_E_NONE);
+	mu_assert("simple string", err == TBL_E_NONE);
 
 	err = tbl_parse(buf, 5, &callbacks, &result);
-  mu_assert("string too long", err == TBL_E_INVALID_DATA);
+	mu_assert("string too long", err == TBL_E_INVALID_DATA);
 
 	sprintf(buf, "0:");
 	result.len = 0;
 	result.str = "";
 	err = tbl_parse(buf, 2, &callbacks, &result);
-  mu_assert("emtpy", err == TBL_E_NONE);
+	mu_assert("emtpy", err == TBL_E_NONE);
 
-  return NULL;
+	return NULL;
 }
 
 static char *test_list()
 {
-  tbl_error_t err;
+	tbl_error_t err;
 
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("emtpy list", err == TBL_E_NONE);
+	err = tbl_parse("le", 2, &callbacks, NULL);
+	mu_assert("emtpy list", err == TBL_E_NONE);
 
-  return NULL;
+	return NULL;
 }
 
 static char *all_tests()
@@ -141,21 +144,21 @@ static char *all_tests()
 	mu_run_test(test_common);
 	mu_run_test(test_integer);
 	mu_run_test(test_string);
-  mu_run_test(test_list);
+	mu_run_test(test_list);
 
 	return NULL;
 }
 
 int main(int argc, char *argv[])
 {
-  char *result = all_tests();
-  if (result != 0) {
-    printf("%s\n", result);
-  } else {
-    printf("ALL TEST PASSED\n");
-  }
-  printf("Tests run: %d\n", tests_run);
+	char *result = all_tests();
+	if (result != 0) {
+		printf("%s\n", result);
+	} else {
+		printf("ALL TEST PASSED\n");
+	}
+	printf("Tests run: %d\n", tests_run);
 
-  return result != NULL;
+	return result != NULL;
 }
 

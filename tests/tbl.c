@@ -11,12 +11,12 @@
 #include "minunit.h"
 #include "tbl.h"
 
+int tests_run;
+
 typedef struct str {
 	size_t len;
 	char *str;
 } str_t;
-
-int tests_run;
 
 static int tbl_integer(void *ctx, long long value)
 {
@@ -107,23 +107,20 @@ static char *test_integer()
 
 static char *test_string()
 {
-	char buf[8];
 	str_t result;
 	int err;
 
-	sprintf(buf, "4:test");
 	result.len = 4;
 	result.str = "test";
-	err = tbl_parse(buf, 6, &callbacks, &result);
+	err = tbl_parse("4:test", 6, &callbacks, &result);
 	mu_assert("simple string", err == TBL_E_NONE);
 
-	err = tbl_parse(buf, 5, &callbacks, &result);
+	err = tbl_parse("4:test", 5, &callbacks, &result);
 	mu_assert("string too long", err == TBL_E_INVALID_DATA);
 
-	sprintf(buf, "0:");
 	result.len = 0;
 	result.str = "";
-	err = tbl_parse(buf, 2, &callbacks, &result);
+	err = tbl_parse("0:", 2, &callbacks, &result);
 	mu_assert("emtpy", err == TBL_E_NONE);
 
 	return NULL;
@@ -139,12 +136,23 @@ static char *test_list()
 	return NULL;
 }
 
+static char *test_dict()
+{
+	tbl_error_t err;
+
+	err = tbl_parse("de", 2, &callbacks, NULL);
+	mu_assert("emtpy dictionary", err == TBL_E_NONE);
+
+	return NULL;
+}
+
 static char *all_tests()
 {
 	mu_run_test(test_common);
 	mu_run_test(test_integer);
 	mu_run_test(test_string);
 	mu_run_test(test_list);
+	mu_run_test(test_dict);
 
 	return NULL;
 }

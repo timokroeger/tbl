@@ -37,7 +37,7 @@ typedef struct tbl_callbacks {
 } tbl_callbacks_t;
 
 tbl_error_t tbl_parse(const char            *buf,
-                      const char            *bufend,
+                      size_t                 lenght,
                       const tbl_callbacks_t *callbacks,
                       void                  *ctx);
 

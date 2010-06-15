@@ -144,10 +144,10 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 		handle->err = TBL_E_INVALID_DATA;
 }
 
-tbl_error_t tbl_parse(const char *buf, const char *bufend,
+tbl_error_t tbl_parse(const char *buf, size_t lenght,
                       const tbl_callbacks_t *callbacks, void *ctx)
 {
-	tbl_handle_t handle = { TBL_E_NONE, buf, bufend, ctx };
+	tbl_handle_t handle = { TBL_E_NONE, buf, buf + lenght, ctx };
 	if (!callbacks)
 		return TBL_E_NO_CALLBACKS;
 

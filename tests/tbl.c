@@ -48,10 +48,10 @@ static char *test_common()
 	long result;
 	tbl_error_t err;
 
-	err = tbl_parse(ptr, ptr, &callbacks, &result);
+	err = tbl_parse(ptr, 0, &callbacks, &result);
   mu_assert("empty buffer", err == TBL_E_NONE);
 
-	err = tbl_parse(ptr, ++ptr, NULL, &result);
+	err = tbl_parse(ptr, 19, NULL, &result);
   mu_assert("no callbacks", err == TBL_E_NO_CALLBACKS);
 
   return NULL;
@@ -65,38 +65,38 @@ static char *test_integer()
 
 	sprintf(buf, "i1234e");
 	result = 1234;
-	err = tbl_parse(buf, buf + 6, &callbacks, &result);
+	err = tbl_parse(buf, 6, &callbacks, &result);
   mu_assert("positive integer", err == TBL_E_NONE);
 
 	sprintf(buf, "i-123e");
 	result = -123;
-	err = tbl_parse(buf, buf + 6, &callbacks, &result);
+	err = tbl_parse(buf, 6, &callbacks, &result);
 	mu_assert("nagtive integer", err == TBL_E_NONE);
 
 	sprintf(buf, "i123456789123e");
 	result = 123456789123;
-	err = tbl_parse(buf, buf + 14, &callbacks, &result);
+	err = tbl_parse(buf, 14, &callbacks, &result);
 	mu_assert("big integer", err == TBL_E_NONE);
 
 	sprintf(buf, "i123456789123456789123456789e");
-	err = tbl_parse(buf, buf + 14, &callbacks, &result);
+	err = tbl_parse(buf, 14, &callbacks, &result);
 	mu_assert("too big integer", err == TBL_E_INVALID_DATA);
 
 	sprintf(buf, "i0e");
 	result = 0;
-	err = tbl_parse(buf, buf + 3, &callbacks, &result);
+	err = tbl_parse(buf, 3, &callbacks, &result);
 	mu_assert("zero", err != TBL_E_INVALID_DATA);
 
 	sprintf(buf, "i0012e");
-	err = tbl_parse(buf, buf + 6, &callbacks, &result);
+	err = tbl_parse(buf, 6, &callbacks, &result);
 	mu_assert("no preceding zeroes allowed", err == TBL_E_INVALID_DATA);
 
 	sprintf(buf, "ia28ze");
-	err = tbl_parse(buf, buf + 6, &callbacks, &result);
+	err = tbl_parse(buf, 6, &callbacks, &result);
 	mu_assert("malformed integer", err == TBL_E_INVALID_DATA);
 
 	sprintf(buf, "i12345");
-	err = tbl_parse(buf, buf + 6, &callbacks, &result);
+	err = tbl_parse(buf, 6, &callbacks, &result);
 	mu_assert("missing 'e'", err == TBL_E_INVALID_DATA);
 
   return NULL;
@@ -111,17 +111,27 @@ static char *test_string()
 	sprintf(buf, "4:test");
 	result.len = 4;
 	result.str = "test";
-	err = tbl_parse(buf, buf + 6, &callbacks, &result);
+	err = tbl_parse(buf, 6, &callbacks, &result);
   mu_assert("simple string", err == TBL_E_NONE);
 
-	err = tbl_parse(buf, buf + 5, &callbacks, &result);
+	err = tbl_parse(buf, 5, &callbacks, &result);
   mu_assert("string too long", err == TBL_E_INVALID_DATA);
 
 	sprintf(buf, "0:");
 	result.len = 0;
 	result.str = "";
-	err = tbl_parse(buf, buf + 2, &callbacks, &result);
+	err = tbl_parse(buf, 2, &callbacks, &result);
   mu_assert("emtpy", err == TBL_E_NONE);
+
+  return NULL;
+}
+
+static char *test_list()
+{
+  tbl_error_t err;
+
+  err = tbl_parse("le", 2, &callbacks, NULL);
+  mu_assert("emtpy list", err == TBL_E_NONE);
 
   return NULL;
 }
@@ -131,6 +141,7 @@ static char *all_tests()
 	mu_run_test(test_common);
 	mu_run_test(test_integer);
 	mu_run_test(test_string);
+  mu_run_test(test_list);
 
 	return NULL;
 }

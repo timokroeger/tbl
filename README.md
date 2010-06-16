@@ -1,26 +1,26 @@
 tbl - tiny bencode library
 ==========================
 *tbl* is a tiny event driven [bencode](http://en.wikipedia.org/wiki/Bencode)
-library written in C. Its api is similar to to the api of
+library written in C. API design is taken from
 [yajl](http://github.com/lloyd/yajl).
 
-It's supposed to be
-
+features
+--------
 * fast
 * small
 * easy to use
 
-Compilation
+compilation
 -----------
 
 	./waf configure
 	./waf
 
-### Run Test
+### run tests
 
 	./build/default/test
 
-Licence
+licence
 -------
 *tbl* is released under WTFPL so you can do what the fuck you want.
 

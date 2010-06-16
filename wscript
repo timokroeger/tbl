@@ -11,6 +11,8 @@ def set_options(opt):
 
 def configure(conf):
     conf.check_tool('compiler_cc')
+    if conf.check(function_name = 'strtoll', header_name = 'stdlib.h'):
+        conf.env.append_value('CCFLAGS', '-DHAVE_STRTOLL')
 
 def build(bld):
     bld(

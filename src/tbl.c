@@ -9,8 +9,6 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include <assert.h>
-
 #include "tbl.h"
 
 #define RET_ERR(errtype) do { handle->err = errtype; return; } while(0)
@@ -44,14 +42,14 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 	if (!q)
 		RET_ERR(TBL_E_INVALID_DATA);
 
-#ifdef WIN32
+#ifdef HAVE_STRTOLL
+	value = strtoll(handle->ptr, &p, 10);
+#else
 	p = (char *)handle->ptr;
 	value = _atoi64(handle->ptr);
 	/* dirty hack to look for the end of the number */
 	while (*p == '-' || isdigit(*p))
 		p++;
-#else
-	value = strtoll(handle->ptr, &p, 10);
 #endif
 
 	if (p != q || errno == ERANGE)

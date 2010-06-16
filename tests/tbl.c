@@ -18,14 +18,14 @@ typedef struct str {
 	char *str;
 } str_t;
 
-static int tbl_integer(void *ctx, long long value)
+static int verify_integer(void *ctx, long long value)
 {
 	if (*(long long *)ctx != value)
 		return -1;
 	return 0;
 }
 
-static int tbl_string(void *ctx, char *value, size_t length)
+static int verify_string(void *ctx, char *value, size_t length)
 {
 	str_t *str = (str_t *)ctx;
 	if (str->len != length)
@@ -35,26 +35,17 @@ static int tbl_string(void *ctx, char *value, size_t length)
 	return 0;
 }
 
-static tbl_callbacks_t callbacks = {
-	tbl_integer,
-	tbl_string,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
+static tbl_callbacks_t callbacks;
 
 static char *test_common()
 {
 	char *ptr;
-	long result;
 	tbl_error_t err;
 
-	err = tbl_parse(ptr, 0, &callbacks, &result);
+	err = tbl_parse(ptr, 0, &callbacks, NULL);
 	mu_assert("empty buffer", err == TBL_E_NONE);
 
-	err = tbl_parse(ptr, 19, NULL, &result);
+	err = tbl_parse(ptr, 8, NULL, NULL);
 	mu_assert("no callbacks", err == TBL_E_NO_CALLBACKS);
 
 	return NULL;
@@ -62,44 +53,37 @@ static char *test_common()
 
 static char *test_integer()
 {
-	char buf[32];
 	long long result;
 	tbl_error_t err;
 
-	sprintf(buf, "i1234e");
+	callbacks.tbl_integer = verify_integer;
+
 	result = 1234;
-	err = tbl_parse(buf, 6, &callbacks, &result);
+	err = tbl_parse("i1234e", 6, &callbacks, &result);
 	mu_assert("positive integer", err == TBL_E_NONE);
 
-	sprintf(buf, "i-123e");
 	result = -123;
-	err = tbl_parse(buf, 6, &callbacks, &result);
+	err = tbl_parse("i-123e", 6, &callbacks, &result);
 	mu_assert("nagtive integer", err == TBL_E_NONE);
 
-	sprintf(buf, "i123456789123e");
 	result = 123456789123;
-	err = tbl_parse(buf, 14, &callbacks, &result);
+	err = tbl_parse("i123456789123e", 14, &callbacks, &result);
 	mu_assert("big integer", err == TBL_E_NONE);
 
-	sprintf(buf, "i123456789123456789123456789e");
-	err = tbl_parse(buf, 14, &callbacks, &result);
+	err = tbl_parse("i1234567891234567891234567e", 14, &callbacks, &result);
 	mu_assert("too big integer", err == TBL_E_INVALID_DATA);
 
-	sprintf(buf, "i0e");
 	result = 0;
-	err = tbl_parse(buf, 3, &callbacks, &result);
-	mu_assert("zero", err != TBL_E_INVALID_DATA);
+	err = tbl_parse("i0e", 3, &callbacks, &result);
+	mu_assert("zero", err == TBL_E_NONE);
 
-	sprintf(buf, "i0012e");
-	err = tbl_parse(buf, 6, &callbacks, &result);
+	err = tbl_parse("i0012e", 6, &callbacks, &result);
 	mu_assert("no preceding zeroes allowed", err == TBL_E_INVALID_DATA);
 
-	sprintf(buf, "ia28ze");
-	err = tbl_parse(buf, 6, &callbacks, &result);
+	err = tbl_parse("ia28ze", 6, &callbacks, &result);
 	mu_assert("malformed integer", err == TBL_E_INVALID_DATA);
 
-	sprintf(buf, "i12345");
-	err = tbl_parse(buf, 6, &callbacks, &result);
+	err = tbl_parse("i12345", 6, &callbacks, &result);
 	mu_assert("missing 'e'", err == TBL_E_INVALID_DATA);
 
 	return NULL;
@@ -108,7 +92,9 @@ static char *test_integer()
 static char *test_string()
 {
 	str_t result;
-	int err;
+	tbl_error_t err;
+
+	callbacks.tbl_string = verify_string;
 
 	result.len = 4;
 	result.str = "test";
@@ -161,7 +147,7 @@ int main(int argc, char *argv[])
 {
 	char *result = all_tests();
 	if (result != 0) {
-		printf("%s\n", result);
+		printf("error: %s\n", result);
 	} else {
 		printf("ALL TEST PASSED\n");
 	}
@@ -169,4 +155,3 @@ int main(int argc, char *argv[])
 
 	return result != NULL;
 }
-

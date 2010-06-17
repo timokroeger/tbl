@@ -14,14 +14,14 @@ def set_options(opt):
         '--debug',
         action = 'store_true',
         default = False,
-        help = 'Build debug variant [Default: False]',
+        help = 'build debug variant [Default: False]',
         dest = 'debug'
     )
     opt.add_option(
         '--release',
         action = 'store_true',
         default = False,
-        help = 'Build release variant [Default: False]',
+        help = 'build release variant [Default: False]',
         dest = 'release'
     )
 

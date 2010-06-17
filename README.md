@@ -10,15 +10,22 @@ features
 * small
 * easy to use
 
-compilation
------------
+build instructions
+------------------
 
 	./waf configure
 	./waf
 
+### build variants
+
+default variant is called default
+
+	./waf --debug
+	./waf --release
+
 ### run tests
 
-	./build/default/test
+	./build/<variant>/test
 
 licence
 -------

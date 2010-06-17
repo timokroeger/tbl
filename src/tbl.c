@@ -69,7 +69,7 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 	size_t len;
 	char *ptr, *endptr;
 
-	ptr = memchr(handle->ptr--, ':', handle->end - handle->ptr);
+	ptr = memchr(handle->ptr, ':', handle->end - handle->ptr);
 	if (!ptr)
 		RET_ERR(TBL_E_INVALID_DATA);
 
@@ -82,7 +82,7 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 	handle->ptr = endptr + len; /* jump to next token */
 }
 
-void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
+void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 {
 	/* list start */
 	if (callbacks->tbl_list_start && callbacks->tbl_list_start(handle->ctx))
@@ -100,7 +100,7 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 	handle->ptr++; /* skip 'e' */
 }
 
-void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
+void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 {
 	/* dict start */
 	if (callbacks->tbl_dict_start && callbacks->tbl_dict_start(handle->ctx))
@@ -122,7 +122,7 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 	handle->ptr++; /* skip 'e' */
 }
 
-void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
+void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 {
 	char c = *handle->ptr++;
 
@@ -132,8 +132,10 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 	/* get type of next entry */
 	if (c == 'i')
 		parse_integer(callbacks->tbl_integer, handle);
-	else if (isdigit(c) != 0)
+	else if (isdigit(c) != 0) {
+		handle->ptr--; /* string has no prefix like i d or l */
 		parse_string(callbacks->tbl_string, handle);
+	}
 	else if (c == 'l')
 		parse_list(callbacks, handle);
 	else if (c == 'd')

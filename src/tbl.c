@@ -126,7 +126,7 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t  *handle)
 {
 	char c = *handle->ptr++;
 
-	if ((handle->ptr >= handle->end) || (!callbacks))
+	if (handle->ptr >= handle->end)
 		RET_ERR(TBL_E_INVALID_DATA);
 
 	/* get type of next entry */

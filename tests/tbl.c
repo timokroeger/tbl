@@ -56,6 +56,9 @@ static char *test_integer()
 	long long result;
 	tbl_error_t err;
 
+	err = tbl_parse("i1234e", 6, &callbacks, &result);
+	mu_assert("no callback triggered", err == TBL_E_NONE);
+
 	callbacks.tbl_integer = verify_integer;
 
 	result = 1234;
@@ -70,12 +73,16 @@ static char *test_integer()
 	err = tbl_parse("i123456789123e", 14, &callbacks, &result);
 	mu_assert("big integer", err == TBL_E_NONE);
 
-	err = tbl_parse("i1234567891234567891234567e", 14, &callbacks, &result);
-	mu_assert("too big integer", err == TBL_E_INVALID_DATA);
-
 	result = 0;
 	err = tbl_parse("i0e", 3, &callbacks, &result);
 	mu_assert("zero", err == TBL_E_NONE);
+
+	result = 4321;
+	err = tbl_parse("i1234e", 6, &callbacks, &result);
+	mu_assert("cancel by user", err == TBL_E_CANCELED_BY_USER);
+
+	err = tbl_parse("i1234567891234567891234567e", 14, &callbacks, &result);
+	mu_assert("too big integer", err == TBL_E_INVALID_DATA);
 
 	err = tbl_parse("i0012e", 6, &callbacks, &result);
 	mu_assert("no preceding zeroes allowed", err == TBL_E_INVALID_DATA);
@@ -94,6 +101,9 @@ static char *test_string()
 	str_t result;
 	tbl_error_t err;
 
+	err = tbl_parse("4:test", 6, &callbacks, &result);
+	mu_assert("no callback triggered", err == TBL_E_NONE);
+
 	callbacks.tbl_string = verify_string;
 
 	result.len = 4;
@@ -103,6 +113,13 @@ static char *test_string()
 
 	err = tbl_parse("4:test", 5, &callbacks, &result);
 	mu_assert("string too long", err == TBL_E_INVALID_DATA);
+
+	err = tbl_parse("4test", 5, &callbacks, &result);
+	mu_assert("no : seperator", err == TBL_E_INVALID_DATA);
+
+	result.str = "lolwat";
+	err = tbl_parse("4:test", 6, &callbacks, &result);
+	mu_assert("cancel by user", err == TBL_E_CANCELED_BY_USER);
 
 	result.len = 0;
 	result.str = "";

@@ -18,6 +18,9 @@ typedef struct str {
 	char *str;
 } str_t;
 
+int pass(void *ctx) { return 0; };
+int fail(void *ctx) { return 1; };
+
 static int verify_integer(void *ctx, long long value)
 {
 	if (*(long long *)ctx != value)
@@ -47,6 +50,9 @@ static char *test_common()
 
 	err = tbl_parse(ptr, 8, NULL, NULL);
 	mu_assert("no callbacks", err == TBL_E_NO_CALLBACKS);
+
+	err = tbl_parse("ok", 2, &callbacks, NULL);
+	mu_assert("malformed bencode", err == TBL_E_INVALID_DATA);
 
 	return NULL;
 }
@@ -133,8 +139,36 @@ static char *test_list()
 {
 	tbl_error_t err;
 
+	callbacks.tbl_integer = NULL;
+	callbacks.tbl_string = NULL;
+
+	err = tbl_parse("le", 2, &callbacks, NULL);
+	mu_assert("no start callback", err == TBL_E_NONE);
+
+	err = tbl_parse("le", 2, &callbacks, NULL);
+	mu_assert("no end callback", err == TBL_E_NONE);
+
+	callbacks.tbl_list_start = fail;
+	err = tbl_parse("le", 2, &callbacks, NULL);
+	mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
+	callbacks.tbl_list_start = pass;
+
+	callbacks.tbl_list_end = fail;
+	err = tbl_parse("le", 2, &callbacks, NULL);
+	mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
+	callbacks.tbl_list_end = pass;
+
 	err = tbl_parse("le", 2, &callbacks, NULL);
 	mu_assert("emtpy list", err == TBL_E_NONE);
+
+	err = tbl_parse("l4:testi1234ee", 14, &callbacks, NULL);
+	mu_assert("valid list", err == TBL_E_NONE);
+
+	err = tbl_parse("lli2eel4:testee", 15, &callbacks, NULL);
+	mu_assert("nested list", err == TBL_E_NONE);
+
+	err = tbl_parse("l4:testi1234ee", 10, &callbacks, NULL);
+	mu_assert("list overflows", err == TBL_E_INVALID_DATA);
 
 	return NULL;
 }

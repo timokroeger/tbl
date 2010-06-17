@@ -178,7 +178,35 @@ static char *test_dict()
 	tbl_error_t err;
 
 	err = tbl_parse("de", 2, &callbacks, NULL);
-	mu_assert("emtpy dictionary", err == TBL_E_NONE);
+	mu_assert("no start callback", err == TBL_E_NONE);
+
+	err = tbl_parse("de", 2, &callbacks, NULL);
+	mu_assert("no end callback", err == TBL_E_NONE);
+
+	callbacks.tbl_dict_start = fail;
+	err = tbl_parse("de", 2, &callbacks, NULL);
+	mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
+	callbacks.tbl_dict_start = pass;
+
+	callbacks.tbl_dict_end = fail;
+	err = tbl_parse("de", 2, &callbacks, NULL);
+	mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
+	callbacks.tbl_dict_end = pass;
+
+	err = tbl_parse("de", 2, &callbacks, NULL);
+	mu_assert("emtpy dict", err == TBL_E_NONE);
+
+	err = tbl_parse("d4:testi1234ee", 14, &callbacks, NULL);
+	mu_assert("valid dict", err == TBL_E_NONE);
+
+	err = tbl_parse("di23ei1234ee", 12, &callbacks, NULL);
+	mu_assert("invalid key", err == TBL_E_INVALID_DATA);
+
+	err = tbl_parse("d3:food3:bari34eee", 18, &callbacks, NULL);
+	mu_assert("nested dict", err == TBL_E_NONE);
+
+	err = tbl_parse("d4:testi1234ee", 10, &callbacks, NULL);
+	mu_assert("dict overflows", err == TBL_E_INVALID_DATA);
 
 	return NULL;
 }

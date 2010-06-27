@@ -6,8 +6,6 @@
 
 #include "tbl.h"
 
-#define RET_ERR(errtype) longjmp(*handle->err, errtype);
-
 struct tbl_handle {
 	jmp_buf    *err;
 	const char *ptr;
@@ -35,7 +33,7 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 
 	q = memchr(handle->ptr, 'e', handle->end - handle->ptr);
 	if (!q)
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 
 #ifdef HAVE_STRTOLL
 	value = strtoll(handle->ptr, &p, 10);
@@ -48,12 +46,12 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 #endif
 
 	if (p != q || errno == ERANGE)
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 	/* preceding 0 arent't allowed and i0e is still valid */
 	if (value && *handle->ptr == '0')
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, value))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
 	handle->ptr = q + 1; /* skip e */
 }
@@ -66,13 +64,13 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
 
 	ptr = memchr(handle->ptr, ':', handle->end - handle->ptr);
 	if (!ptr)
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 
 	len = strtol(handle->ptr, &endptr, 10);
 	if (errno == ERANGE || endptr != ptr || ++endptr + len > handle->end)
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 	if (event_fn && event_fn(handle->ctx, endptr, len))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
 	handle->ptr = endptr + len; /* jump to next token */
 }
@@ -81,13 +79,13 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 {
 	/* list start */
 	if (callbacks->tbl_list_start && callbacks->tbl_list_start(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 	/* entries */
 	while (*handle->ptr != 'e')
 		parse_next(callbacks, handle);
 	/* list end */
 	if (callbacks->tbl_list_end && callbacks->tbl_list_end(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
 	handle->ptr++; /* skip 'e' */
 }
@@ -96,7 +94,7 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 {
 	/* dict start */
 	if (callbacks->tbl_dict_start && callbacks->tbl_dict_start(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
 	/* keys + entries */
 	while (*handle->ptr != 'e') {
@@ -105,7 +103,7 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	}
 	/* dict end */
 	if (callbacks->tbl_dict_end && callbacks->tbl_dict_end(handle->ctx))
-		RET_ERR(TBL_E_CANCELED_BY_USER);
+		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
 	handle->ptr++; /* skip 'e' */
 }
@@ -115,7 +113,7 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	char c = *handle->ptr++;
 
 	if (handle->ptr >= handle->end)
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 
 	/* get type of next entry */
 	if (c == 'i')
@@ -129,7 +127,7 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	else if (c == 'd')
 		parse_dict(callbacks, handle);
 	else
-		RET_ERR(TBL_E_INVALID_DATA);
+		longjmp(*handle->err, TBL_E_INVALID_DATA);
 }
 
 tbl_error_t tbl_parse(const char *buf, size_t lenght,

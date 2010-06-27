@@ -29,5 +29,5 @@ default variant is called default
 
 licence
 -------
-*tbl* is released under WTFPL so you can do what the fuck you want.
+*tbl* is released under MIT Licence
 

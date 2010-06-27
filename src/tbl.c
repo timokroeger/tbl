@@ -13,20 +13,17 @@ struct tbl_handle {
 	void       *ctx;
 };
 
-/* "low level parsing", the callback is passed so parse_string can call either
- * the string callback or the dict key callback */
-static void parse_integer(int (*event_fn)(void *ctx, long long value),
-                          tbl_handle_t *handle);
+/* the callback is passed so parse_string can call either the string callback or the dict key callback */
 static void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
                          tbl_handle_t *handle);
 /* functions to parse container types */
+static void parse_integer(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
 static void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
 static void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
 /* gets the first char of the buffer to decide which type has to be parsed */
 static void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle);
 
-void parse_integer(int (*event_fn)(void *ctx, long long value),
-                   tbl_handle_t *handle)
+static void parse_integer(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 {
 	long long value;
 	char *p, *q;
@@ -50,7 +47,7 @@ void parse_integer(int (*event_fn)(void *ctx, long long value),
 	/* preceding 0 arent't allowed and i0e is still valid */
 	if (value && *handle->ptr == '0')
 		longjmp(*handle->err, TBL_E_INVALID_DATA);
-	if (event_fn && event_fn(handle->ctx, value))
+	if (callbacks->tbl_integer && callbacks->tbl_integer(handle->ctx, value))
 		longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
 	handle->ptr = q + 1; /* skip e */
@@ -117,7 +114,7 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 
 	/* get type of next entry */
 	if (c == 'i')
-		parse_integer(callbacks->tbl_integer, handle);
+		parse_integer(callbacks, handle);
 	else if (isdigit(c) != 0) {
 		handle->ptr--; /* string has no prefix like i d or l to be skipped */
 		parse_string(callbacks->tbl_string, handle);

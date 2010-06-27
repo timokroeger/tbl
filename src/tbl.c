@@ -1,14 +1,15 @@
 #include <ctype.h>
 #include <errno.h>
+#include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "tbl.h"
 
-#define RET_ERR(errtype) do { handle->err = errtype; return; } while(0)
+#define RET_ERR(errtype) longjmp(*handle->err, errtype);
 
 struct tbl_handle {
-	tbl_error_t err;
+	jmp_buf    *err;
 	const char *ptr;
 	const char *end;
 	void       *ctx;
@@ -82,11 +83,8 @@ void parse_list(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	if (callbacks->tbl_list_start && callbacks->tbl_list_start(handle->ctx))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
 	/* entries */
-	while (*handle->ptr != 'e') {
+	while (*handle->ptr != 'e')
 		parse_next(callbacks, handle);
-		if (handle->err != TBL_E_NONE)
-			return;
-	}
 	/* list end */
 	if (callbacks->tbl_list_end && callbacks->tbl_list_end(handle->ctx))
 		RET_ERR(TBL_E_CANCELED_BY_USER);
@@ -103,11 +101,7 @@ void parse_dict(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	/* keys + entries */
 	while (*handle->ptr != 'e') {
 		parse_string(callbacks->tbl_dict_key, handle);
-		if (handle->err != TBL_E_NONE)
-			return;
 		parse_next(callbacks, handle);
-		if (handle->err != TBL_E_NONE)
-			return;
 	}
 	/* dict end */
 	if (callbacks->tbl_dict_end && callbacks->tbl_dict_end(handle->ctx))
@@ -127,7 +121,7 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	if (c == 'i')
 		parse_integer(callbacks->tbl_integer, handle);
 	else if (isdigit(c) != 0) {
-		handle->ptr--; /* string has no prefix like i d or l */
+		handle->ptr--; /* string has no prefix like i d or l to be skipped */
 		parse_string(callbacks->tbl_string, handle);
 	}
 	else if (c == 'l')
@@ -135,19 +129,23 @@ void parse_next(const tbl_callbacks_t *callbacks, tbl_handle_t *handle)
 	else if (c == 'd')
 		parse_dict(callbacks, handle);
 	else
-		handle->err = TBL_E_INVALID_DATA;
+		RET_ERR(TBL_E_INVALID_DATA);
 }
 
 tbl_error_t tbl_parse(const char *buf, size_t lenght,
                       const tbl_callbacks_t *callbacks, void *ctx)
 {
-	tbl_handle_t handle = { TBL_E_NONE, buf, buf + lenght, ctx };
+	jmp_buf env;
+	tbl_error_t err;
+	tbl_handle_t handle = { &env, buf, buf + lenght, ctx };
+
 	if (!callbacks)
 		return TBL_E_NO_CALLBACKS;
 
-	while (handle.ptr < handle.end && handle.err == TBL_E_NONE)
+	err = setjmp(env);
+	if (err == TBL_E_NONE && handle.ptr < handle.end)
 		parse_next(callbacks, &handle);
 
-	return handle.err;
+	return err;
 }
 

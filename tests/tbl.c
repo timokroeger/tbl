@@ -38,12 +38,12 @@ static int verify_string(void *ctx, char *value, size_t length)
 	return 0;
 }
 
-static tbl_callbacks_t callbacks;
+static struct tbl_callbacks callbacks;
 
 static char *test_common()
 {
 	char *ptr;
-	tbl_error_t err;
+	int err;
 
 	err = tbl_parse(ptr, 0, &callbacks, NULL);
 	mu_assert("empty buffer", err == TBL_E_NONE);
@@ -60,12 +60,12 @@ static char *test_common()
 static char *test_integer()
 {
 	long long result;
-	tbl_error_t err;
+	int err;
 
 	err = tbl_parse("i1234e", 6, &callbacks, &result);
 	mu_assert("no callback triggered", err == TBL_E_NONE);
 
-	callbacks.tbl_integer = verify_integer;
+	callbacks.integer = verify_integer;
 
 	result = 1234;
 	err = tbl_parse("i1234e", 6, &callbacks, &result);
@@ -105,12 +105,12 @@ static char *test_integer()
 static char *test_string()
 {
 	str_t result;
-	tbl_error_t err;
+	int err;
 
 	err = tbl_parse("4:test", 6, &callbacks, &result);
 	mu_assert("no callback triggered", err == TBL_E_NONE);
 
-	callbacks.tbl_string = verify_string;
+	callbacks.string = verify_string;
 
 	result.len = 4;
 	result.str = "test";
@@ -137,10 +137,10 @@ static char *test_string()
 
 static char *test_list()
 {
-	tbl_error_t err;
+	int err;
 
-	callbacks.tbl_integer = NULL;
-	callbacks.tbl_string = NULL;
+	callbacks.integer = NULL;
+	callbacks.string = NULL;
 
 	err = tbl_parse("le", 2, &callbacks, NULL);
 	mu_assert("no start callback", err == TBL_E_NONE);
@@ -148,15 +148,15 @@ static char *test_list()
 	err = tbl_parse("le", 2, &callbacks, NULL);
 	mu_assert("no end callback", err == TBL_E_NONE);
 
-	callbacks.tbl_list_start = fail;
+	callbacks.list_start = fail;
 	err = tbl_parse("le", 2, &callbacks, NULL);
 	mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
-	callbacks.tbl_list_start = pass;
+	callbacks.list_start = pass;
 
-	callbacks.tbl_list_end = fail;
+	callbacks.list_end = fail;
 	err = tbl_parse("le", 2, &callbacks, NULL);
 	mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
-	callbacks.tbl_list_end = pass;
+	callbacks.list_end = pass;
 
 	err = tbl_parse("le", 2, &callbacks, NULL);
 	mu_assert("emtpy list", err == TBL_E_NONE);
@@ -175,7 +175,7 @@ static char *test_list()
 
 static char *test_dict()
 {
-	tbl_error_t err;
+	int err;
 
 	err = tbl_parse("de", 2, &callbacks, NULL);
 	mu_assert("no start callback", err == TBL_E_NONE);
@@ -183,15 +183,15 @@ static char *test_dict()
 	err = tbl_parse("de", 2, &callbacks, NULL);
 	mu_assert("no end callback", err == TBL_E_NONE);
 
-	callbacks.tbl_dict_start = fail;
+	callbacks.dict_start = fail;
 	err = tbl_parse("de", 2, &callbacks, NULL);
 	mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
-	callbacks.tbl_dict_start = pass;
+	callbacks.dict_start = pass;
 
-	callbacks.tbl_dict_end = fail;
+	callbacks.dict_end = fail;
 	err = tbl_parse("de", 2, &callbacks, NULL);
 	mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
-	callbacks.tbl_dict_end = pass;
+	callbacks.dict_end = pass;
 
 	err = tbl_parse("de", 2, &callbacks, NULL);
 	mu_assert("emtpy dict", err == TBL_E_NONE);

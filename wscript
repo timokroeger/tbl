@@ -29,6 +29,8 @@ def configure(conf):
     conf.check_tool('compiler_cc')
     if conf.check(function_name = 'strtoll', header_name = 'stdlib.h'):
         conf.env.append_value('CCFLAGS', '-DHAVE_STRTOLL')
+    if conf.check(function_name = '_atoi64', header_name = 'stdlib.h'):
+        conf.env.append_value('CCFLAGS', '-DHAVE_ATOI64')
 
     debug_env = conf.env.copy()
     debug_env.set_variant('debug')

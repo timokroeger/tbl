@@ -53,10 +53,11 @@ static void parse_integer(const struct tbl_callbacks *callbacks, struct tbl_hand
   value = strtoll(handle->ptr, &p, 10);
 #else
   p = (char *)handle->ptr;
-#ifdef __APPLE__
-  value = atoi(handle->ptr);
-#else
+#ifdef HAVE_ATOI64
   value = _atoi64(handle->ptr);
+#else
+  /* Fallback to 32bit atoi. Tests for large integers fail. */
+  value = atoi(handle->ptr);
 #endif
   /* dirty hack to look for the end of the number */
   while (*p == '-' || isdigit(*p))

@@ -44,13 +44,13 @@ def build(bld):
     tbl = bld(
         features = ['cc', 'cstaticlib'],
         target   = 'tbl',
-        source   = 'src/tbl.c',
+        source   = 'tbl.c',
     )
 
     test = bld(
         features     = ['cc', 'cprogram'],
         target       = 'test',
-        source       = 'tests/tbl.c',
+        source       = 'test.c',
         includes     = 'src',
         uselib_local = 'tbl'
     )

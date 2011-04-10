@@ -1,17 +1,14 @@
-/* This program is free software. It comes without any warranty, to
- * the extent permitted by applicable law. You can redistribute it
- * and/or modify it under the terms of the Do What The Fuck You Want
- * To Public License, Version 2, as published by Sam Hocevar. See
- * http://sam.zoy.org/wtfpl/COPYING for more details. */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "minunit.h"
 #include "tbl.h"
 
-int tests_run;
+#define mu_assert(message, test) do { if (!(test)) return message; } while (0)
+#define mu_run_test(test) do { char *message = test(); tests_run++; \
+                               if (message) return message; } while (0)
+
+static int tests_run;
 
 typedef struct str {
 	size_t len;

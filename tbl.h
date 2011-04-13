@@ -20,7 +20,7 @@
 #include <stddef.h> /* size_t */
 
 #ifdef __cplusplus
-extern C {
+extern "C" {
 #endif
 
 enum tbl_error {

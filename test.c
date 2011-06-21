@@ -55,7 +55,7 @@ static struct tbl_callbacks callbacks;
 
 static char *test_common()
 {
-	char *ptr;
+	char *ptr = NULL;
 	int err;
 
 	err = tbl_parse(ptr, 0, &callbacks, NULL);

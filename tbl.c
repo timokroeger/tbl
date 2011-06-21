@@ -17,7 +17,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <setjmp.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "tbl.h"
@@ -42,29 +41,27 @@ static void parse_next(const struct tbl_callbacks *callbacks, struct tbl_handle 
 
 static void parse_integer(const struct tbl_callbacks *callbacks, struct tbl_handle *handle)
 {
-  long long value;
-  char *p, *q;
+  long long value = 0;
+  const char *p, *q;
+  int sign;
 
-  q = memchr(handle->ptr, 'e', handle->end - handle->ptr);
+  p = handle->ptr;
+  q = (const char *)memchr(handle->ptr, 'e', handle->end - handle->ptr);
   if (!q)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
 
-#ifdef HAVE_STRTOLL
-  value = strtoll(handle->ptr, &p, 10);
-#else
-  p = (char *)handle->ptr;
-#ifdef HAVE_ATOI64
-  value = _atoi64(handle->ptr);
-#else
-  /* Fallback to 32bit atoi. Tests for large integers fail. */
-  value = atoi(handle->ptr);
-#endif
-  /* dirty hack to look for the end of the number */
-  while (*p == '-' || isdigit(*p))
-    p++;
-#endif
+  /* watch out for negative numbers */
+  sign = *p == '-' ? -1 : 1;
+  *p == '-' && p++;
 
-  if (p != q || errno == ERANGE)
+  while (p < q && isdigit(*p)) {
+    value *= 10;
+	value += *p - '0';
+	p++;
+  }
+  value *= sign;
+
+  if (p != q)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
   /* preceding 0 arent't allowed and i0e is still valid */
   if (value && *handle->ptr == '0')
@@ -81,7 +78,7 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
   size_t len;
   char *ptr, *endptr;
 
-  ptr = memchr(handle->ptr, ':', handle->end - handle->ptr);
+  ptr = (char *)memchr(handle->ptr, ':', handle->end - handle->ptr);
   if (!ptr)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
 
@@ -165,4 +162,3 @@ int tbl_parse(const char *buf, size_t lenght,
 
   return err;
 }
-

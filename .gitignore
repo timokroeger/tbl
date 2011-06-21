@@ -1,4 +1,0 @@
-build/
-.waf*
-.lock-wscript
-.DS_Store

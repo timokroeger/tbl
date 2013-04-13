@@ -8,22 +8,7 @@ features
 --------
 * fast
 * small
-* easy to use
-
-build instructions
-------------------
-
-    ./waf configure
-    ./waf
-
-### build variants
-
-    ./waf --debug
-    ./waf --release
-
-### run tests
-
-    ./build/<variant>/test
+* simple interface
 
 licence
 -------

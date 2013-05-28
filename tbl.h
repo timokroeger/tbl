@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2011 tbl developers
+ * Copyright (c) 2010-2013 somemetricprefix <somemetricprefix+code@gmail.com>
  *
- * Permission to use, copy, modify, and/or distribute this software for any
+ * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
  *
@@ -13,7 +13,6 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
 #ifndef TBL_H
 #define TBL_H
 

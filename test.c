@@ -143,7 +143,10 @@ static char *test_string(void)
   result.len = 0;
   result.str = "";
   err = tbl_parse("0:", 2, &callbacks, &result);
-  mu_assert("emtpy", err == TBL_E_NONE);
+  mu_assert("emtpy string", err == TBL_E_NONE);
+
+  err = tbl_parse("-4:test", 7, &callbacks, NULL);
+  mu_assert("negative string length", err == TBL_E_INVALID_DATA);
 
   return NULL;
 }

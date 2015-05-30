@@ -77,17 +77,19 @@ static void parse_integer(const struct tbl_callbacks *callbacks, struct tbl_hand
 void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
                   struct tbl_handle *handle)
 {
-  size_t len;
+  long len;
   char *ptr, *endptr;
 
   ptr = memchr(handle->ptr, ':', (size_t)(handle->end - handle->ptr));
   if (!ptr)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
 
+  // len is awlays gonna be a positive number. If it had a sign this function
+  // would not have been entered. It’s thus safe to cast it to size_t later.
   len = strtol(handle->ptr, &endptr, 10);
   if (errno == ERANGE || endptr != ptr || ++endptr + len > handle->end)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
-  if (event_fn && event_fn(handle->ctx, endptr, len))
+  if (event_fn && event_fn(handle->ctx, endptr, (size_t)len))
     longjmp(*handle->err, TBL_E_CANCELED_BY_USER);
 
   handle->ptr = endptr + len; /* jump to next token */

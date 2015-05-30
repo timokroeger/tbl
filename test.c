@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013 somemetricprefix <somemetricprefix+code@gmail.com>
+ * Copyright (c) 2010-2015 somemetricprefix <somemetricprefix+code@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -31,8 +31,8 @@ typedef struct str {
   char *str;
 } str_t;
 
-int pass(void *ctx) { return 0; };
-int fail(void *ctx) { return 1; };
+int pass(void *ctx) { return 0; }
+int fail(void *ctx) { return 1; }
 
 static int verify_integer(void *ctx, long long value)
 {
@@ -53,7 +53,7 @@ static int verify_string(void *ctx, char *value, size_t length)
 
 static struct tbl_callbacks callbacks;
 
-static char *test_common()
+static char *test_common(void)
 {
   char *ptr = NULL;
   int err;
@@ -70,7 +70,7 @@ static char *test_common()
   return NULL;
 }
 
-static char *test_integer()
+static char *test_integer(void)
 {
   long long result;
   int err;
@@ -115,7 +115,7 @@ static char *test_integer()
   return NULL;
 }
 
-static char *test_string()
+static char *test_string(void)
 {
   str_t result;
   int err;
@@ -148,7 +148,7 @@ static char *test_string()
   return NULL;
 }
 
-static char *test_list()
+static char *test_list(void)
 {
   int err;
 
@@ -186,7 +186,7 @@ static char *test_list()
   return NULL;
 }
 
-static char *test_dict()
+static char *test_dict(void)
 {
   int err;
 
@@ -224,7 +224,7 @@ static char *test_dict()
   return NULL;
 }
 
-static char *all_tests()
+static char *all_tests(void)
 {
   mu_run_test(test_common);
   mu_run_test(test_integer);

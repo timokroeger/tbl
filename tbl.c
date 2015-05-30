@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013 somemetricprefix <somemetricprefix+code@gmail.com>
+ * Copyright (c) 2010-2015 somemetricprefix <somemetricprefix+code@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,6 +17,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <setjmp.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "tbl.h"
@@ -46,18 +47,19 @@ static void parse_integer(const struct tbl_callbacks *callbacks, struct tbl_hand
   int sign;
 
   p = handle->ptr;
-  q = (const char *)memchr(handle->ptr, 'e', handle->end - handle->ptr);
+  q = memchr(handle->ptr, 'e', (size_t)(handle->end - handle->ptr));
   if (!q)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
 
   /* watch out for negative numbers */
   sign = *p == '-' ? -1 : 1;
-  *p == '-' && p++;
+  if (*p == '-')
+    p++;
 
   while (p < q && isdigit(*p)) {
     value *= 10;
-	value += *p - '0';
-	p++;
+    value += *p - '0';
+    p++;
   }
   value *= sign;
 
@@ -78,7 +80,7 @@ void parse_string(int (*event_fn)(void *ctx, char *value, size_t length),
   size_t len;
   char *ptr, *endptr;
 
-  ptr = (char *)memchr(handle->ptr, ':', handle->end - handle->ptr);
+  ptr = memchr(handle->ptr, ':', (size_t)(handle->end - handle->ptr));
   if (!ptr)
     longjmp(*handle->err, TBL_E_INVALID_DATA);
 

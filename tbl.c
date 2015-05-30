@@ -150,12 +150,12 @@ void parse_next(const struct tbl_callbacks *callbacks, struct tbl_handle *handle
     longjmp(*handle->err, TBL_E_INVALID_DATA);
 }
 
-int tbl_parse(const char *buf, size_t lenght,
+int tbl_parse(const char *buf, size_t length,
               const struct tbl_callbacks *callbacks, void *ctx)
 {
   jmp_buf env;
   int err;
-  struct tbl_handle handle = { &env, buf, buf + lenght, ctx };
+  struct tbl_handle handle = { &env, buf, buf + length, ctx };
 
   if (!callbacks)
     return TBL_E_NO_CALLBACKS;

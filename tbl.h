@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013 somemetricprefix <somemetricprefix+code@gmail.com>
+ * Copyright (c) 2010-2015 somemetricprefix <somemetricprefix+code@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -43,7 +43,7 @@ struct tbl_callbacks {
   int (*dict_end)  (void *ctx);
 };
 
-int tbl_parse(const char *buf, size_t lenght,
+int tbl_parse(const char *buf, size_t length,
               const struct tbl_callbacks *callbacks, void *ctx);
 
 /* only prototypes; nothing of this is implemented yet */

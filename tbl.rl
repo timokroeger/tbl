@@ -21,23 +21,23 @@
 %% machine bencode;
 %% write data;
 
-static int parse(const char *buf, size_t length,
+static int parse(char *buf, size_t length,
                  const struct tbl_callbacks *callbacks, void *ctx)
 {
   bool integer_negative = false;
   int64_t integer_value = 0;
 
   int cs;
-  const char *p = buf;
-  const char *pe = p + length;
-  const char *eof = pe;
+  char *p = buf;
+  char *pe = p + length;
+  char *eof = pe;
 
 %%{
   action error {
     return TBL_E_INVALID_DATA;
   }
 
-  action integer_update {
+  action update {
     integer_value = integer_value * 10 + (fc - '0');
   }
 
@@ -51,14 +51,31 @@ static int parse(const char *buf, size_t length,
     }
   }
 
+  action skip_string {
+    // String larger than remaining buffer.
+    if (integer_value >= pe - p) {
+      return TBL_E_INVALID_DATA;
+    }
+
+    if (callbacks->string
+        && callbacks->string(ctx, p + 1, (size_t)integer_value) != 0) {
+      return TBL_E_CANCELED_BY_USER;
+    }
+
+    // Advance parser pointer by string lenght.
+    p += integer_value;
+  }
+
   integer = 'i'
             ( '0'
             | ('-'? @{ integer_negative = true; }
-              [1-9] @integer_update ([0-9]@integer_update)*)
+              [1-9] @update ([0-9]@update)*)
             )
             'e' @integer_parsed;
 
-  main := (integer)* $!error;
+  string = digit+ @update ':' @skip_string;
+
+  main := (integer | string)* $!error;
 
   write init;
   write exec;
@@ -67,8 +84,8 @@ static int parse(const char *buf, size_t length,
   return TBL_E_NONE;
 }
 
-int tbl_parse(const char *buf, size_t length,
-              const struct tbl_callbacks *callbacks, void *ctx)
+int tbl_parse(char *buf, size_t length, const struct tbl_callbacks *callbacks,
+              void *ctx)
 {
   if (!callbacks) {
     return TBL_E_NO_CALLBACKS;

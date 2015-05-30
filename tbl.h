@@ -46,8 +46,8 @@ struct tbl_callbacks {
 
 // Parse bencode encoded string.
 // Returns an error code. A return value TBL_E_NONE indicates sucess.
-int tbl_parse(const char *buf, size_t length,
-              const struct tbl_callbacks *callbacks, void *ctx);
+int tbl_parse(char *buf, size_t length, const struct tbl_callbacks *callbacks,
+              void *ctx);
 
 #ifdef __cplusplus
 }

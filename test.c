@@ -234,7 +234,7 @@ static char *all_tests(void)
 {
   // mu_run_test(test_common);
   mu_run_test(test_integer);
-  // mu_run_test(test_string);
+  mu_run_test(test_string);
   // mu_run_test(test_list);
   // mu_run_test(test_dict);
 

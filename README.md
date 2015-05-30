@@ -4,12 +4,6 @@ tbl - tiny bencode library
 library written in C. API design is inspired by
 [yajl](http://github.com/lloyd/yajl).
 
-features
---------
-* fast
-* small
-* simple interface
-
 licence
 -------
 *tbl* is released under the ISC License

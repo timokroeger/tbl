@@ -34,7 +34,7 @@ typedef struct str {
 int pass(void *ctx) { return 0; }
 int fail(void *ctx) { return 1; }
 
-static int verify_integer(void *ctx, long long value)
+static int verify_integer(void *ctx, int64_t value)
 {
   if (*(long long *)ctx != value)
     return -1;

@@ -42,7 +42,7 @@ static void parse_next(const struct tbl_callbacks *callbacks, struct tbl_handle 
 
 static void parse_integer(const struct tbl_callbacks *callbacks, struct tbl_handle *handle)
 {
-  long long value = 0;
+  int64_t value = 0;
   const char *p, *q;
   int sign;
 

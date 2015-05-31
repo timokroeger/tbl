@@ -204,20 +204,15 @@ static char *test_dict(void)
 {
   int err;
 
-  err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("no start callback", err == TBL_E_NONE);
+  callbacks.integer = NULL;
+  callbacks.string = NULL;
+  callbacks.dict_start = NULL;
+  callbacks.dict_end = NULL;
 
   err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("no end callback", err == TBL_E_NONE);
+  mu_assert("no start or end callback", err == TBL_E_NONE);
 
-  callbacks.dict_start = fail;
-  err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.dict_start = pass;
-
-  callbacks.dict_end = fail;
-  err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.dict_end = pass;
 
   err = tbl_parse("de", 2, &callbacks, NULL);
@@ -235,16 +230,26 @@ static char *test_dict(void)
   err = tbl_parse("d4:testi1234ee", 10, &callbacks, NULL);
   mu_assert("dict overflows", err == TBL_E_INVALID_DATA);
 
+  callbacks.dict_start = fail;
+  callbacks.dict_end = pass;
+  err = tbl_parse("de", 2, &callbacks, NULL);
+  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
+
+  callbacks.dict_start = pass;
+  callbacks.dict_end = fail;
+  err = tbl_parse("de", 2, &callbacks, NULL);
+  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
+
   return NULL;
 }
 
 static char *all_tests(void)
 {
-  // mu_run_test(test_common);
+  mu_run_test(test_common);
   mu_run_test(test_integer);
   mu_run_test(test_string);
   mu_run_test(test_list);
-  // mu_run_test(test_dict);
+  mu_run_test(test_dict);
 
   return NULL;
 }

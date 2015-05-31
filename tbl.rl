@@ -62,17 +62,28 @@ static int parse(char *buf, size_t length,
     integer_value = 0;
   }
 
-  action skip_string {
+  action check_string_size {
     // String larger than remaining buffer.
     if (integer_value >= pe - p) {
       return TBL_E_INVALID_DATA;
     }
+  }
 
+  action string_parsed {
     if (callbacks->string
         && callbacks->string(ctx, p + 1, (size_t)integer_value) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
+  }
 
+  action key_parsed {
+    if (callbacks->dict_key
+        && callbacks->dict_key(ctx, p + 1, (size_t)integer_value) != 0) {
+      return TBL_E_CANCELED_BY_USER;
+    }
+  }
+
+  action skip_string {
     // Advance parser pointer by string lenght.
     p += integer_value;
   }
@@ -89,6 +100,18 @@ static int parse(char *buf, size_t length,
     }
   }
 
+  action dict_start {
+    if (callbacks->dict_start && callbacks->dict_start(ctx) != 0) {
+      return TBL_E_CANCELED_BY_USER;
+    }
+  }
+
+  action dict_end {
+    if (callbacks->dict_end && callbacks->dict_end(ctx) != 0) {
+      return TBL_E_CANCELED_BY_USER;
+    }
+  }
+
   integer = 'i'
             ( '0'
             | ('-'? @{ integer_negative = true; }
@@ -96,13 +119,21 @@ static int parse(char *buf, size_t length,
             )
             'e' @integer_parsed @reset_integer;
 
-  string = digit+ @update ':' @skip_string @reset_integer;
+  string = digit+ @update
+           ':' @check_string_size @string_parsed @skip_string @reset_integer;
+
+  dict_key = digit+ @update
+             ':' @check_string_size @key_parsed @skip_string @reset_integer;
 
   list = 'l' @list_start @{ fcall list_parser; };
 
-  bencode = (integer | string | list);
+  dict = 'd' @dict_start @{ fcall dict_parser; };
 
-  list_parser := (bencode* 'e'  @list_end) @{ fret; } $!error;
+  bencode = (integer | string | list | dict);
+
+  list_parser := (bencode* 'e' @list_end @{ fret; }) $!error;
+
+  dict_parser := ((dict_key bencode)* 'e' @dict_end @{ fret; }) $!error;
 
   main := bencode* $!error;
 

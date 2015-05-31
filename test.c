@@ -67,6 +67,9 @@ static char *test_common(void)
   err = tbl_parse("ok", 2, &callbacks, NULL);
   mu_assert("malformed bencode", err == TBL_E_INVALID_DATA);
 
+  err = tbl_parse("i1234ei1234e", 12, &callbacks, NULL);
+  mu_assert("only one root element allowed", err == TBL_E_INVALID_DATA);
+
   return NULL;
 }
 

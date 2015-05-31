@@ -64,13 +64,14 @@ _again:
 		case 20: goto st20;
 		case 0: goto st0;
 		case 1: goto st1;
+		case 21: goto st21;
 		case 2: goto st2;
 		case 3: goto st3;
 		case 4: goto st4;
 		case 5: goto st5;
 		case 6: goto st6;
 		case 7: goto st7;
-		case 21: goto st21;
+		case 22: goto st22;
 		case 8: goto st8;
 		case 9: goto st9;
 		case 10: goto st10;
@@ -83,7 +84,7 @@ _again:
 		case 17: goto st17;
 		case 18: goto st18;
 		case 19: goto st19;
-		case 22: goto st22;
+		case 23: goto st23;
 	default: break;
 	}
 
@@ -92,6 +93,44 @@ _again:
 _resume:
 	switch ( cs )
 	{
+st20:
+	if ( ++p == pe )
+		goto _test_eof20;
+case 20:
+	switch( (*p) ) {
+		case 100: goto tr29;
+		case 105: goto st2;
+		case 108: goto tr31;
+	}
+	if ( 48 <= (*p) && (*p) <= 57 )
+		goto tr1;
+	goto tr0;
+tr0:
+#line 42 "tbl.rl"
+	{
+    return TBL_E_INVALID_DATA;
+  }
+	goto st0;
+#line 102 "tbl.c"
+st0:
+cs = 0;
+	goto _out;
+tr1:
+#line 46 "tbl.rl"
+	{
+    integer_value = integer_value * 10 + ((*p) - '0');
+  }
+	goto st1;
+st1:
+	if ( ++p == pe )
+		goto _test_eof1;
+case 1:
+#line 114 "tbl.c"
+	if ( (*p) == 58 )
+		goto tr2;
+	if ( 48 <= (*p) && (*p) <= 57 )
+		goto tr1;
+	goto tr0;
 tr2:
 #line 65 "tbl.rl"
 	{
@@ -117,7 +156,7 @@ tr2:
     integer_negative = false;
     integer_value = 0;
   }
-	goto st20;
+	goto st21;
 tr6:
 #line 50 "tbl.rl"
 	{
@@ -134,7 +173,7 @@ tr6:
     integer_negative = false;
     integer_value = 0;
   }
-	goto st20;
+	goto st21;
 tr29:
 #line 103 "tbl.rl"
 	{
@@ -147,8 +186,8 @@ tr29:
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
     }
-  {stack[top++] = 20; goto st12;}} }
-	goto st20;
+  {stack[top++] = 21; goto st12;}} }
+	goto st21;
 tr31:
 #line 91 "tbl.rl"
 	{
@@ -161,46 +200,13 @@ tr31:
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
     }
-  {stack[top++] = 20; goto st6;}} }
-	goto st20;
-st20:
+  {stack[top++] = 21; goto st6;}} }
+	goto st21;
+st21:
 	if ( ++p == pe )
-		goto _test_eof20;
-case 20:
-#line 149 "tbl.c"
-	switch( (*p) ) {
-		case 100: goto tr29;
-		case 105: goto st2;
-		case 108: goto tr31;
-	}
-	if ( 48 <= (*p) && (*p) <= 57 )
-		goto tr1;
-	goto tr0;
-tr0:
-#line 42 "tbl.rl"
-	{
-    return TBL_E_INVALID_DATA;
-  }
-	goto st0;
-#line 162 "tbl.c"
-st0:
-cs = 0;
-	goto _out;
-tr1:
-#line 46 "tbl.rl"
-	{
-    integer_value = integer_value * 10 + ((*p) - '0');
-  }
-	goto st1;
-st1:
-	if ( ++p == pe )
-		goto _test_eof1;
-case 1:
-#line 174 "tbl.c"
-	if ( (*p) == 58 )
-		goto tr2;
-	if ( 48 <= (*p) && (*p) <= 57 )
-		goto tr1;
+		goto _test_eof21;
+case 21:
+#line 184 "tbl.c"
 	goto tr0;
 st2:
 	if ( ++p == pe )
@@ -221,7 +227,7 @@ st3:
 	if ( ++p == pe )
 		goto _test_eof3;
 case 3:
-#line 197 "tbl.c"
+#line 203 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr5;
 	goto tr0;
@@ -235,7 +241,7 @@ st4:
 	if ( ++p == pe )
 		goto _test_eof4;
 case 4:
-#line 209 "tbl.c"
+#line 215 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr6;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -323,7 +329,7 @@ st6:
 	if ( ++p == pe )
 		goto _test_eof6;
 case 6:
-#line 286 "tbl.c"
+#line 292 "tbl.c"
 	switch( (*p) ) {
 		case 100: goto tr8;
 		case 101: goto tr9;
@@ -343,7 +349,7 @@ st7:
 	if ( ++p == pe )
 		goto _test_eof7;
 case 7:
-#line 304 "tbl.c"
+#line 310 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr12;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -358,12 +364,12 @@ tr9:
   }
 #line 134 "tbl.rl"
 	{ {cs = stack[--top];goto _again;} }
-	goto st21;
-st21:
+	goto st22;
+st22:
 	if ( ++p == pe )
-		goto _test_eof21;
-case 21:
-#line 321 "tbl.c"
+		goto _test_eof22;
+case 22:
+#line 327 "tbl.c"
 	goto tr0;
 st8:
 	if ( ++p == pe )
@@ -384,7 +390,7 @@ st9:
 	if ( ++p == pe )
 		goto _test_eof9;
 case 9:
-#line 340 "tbl.c"
+#line 346 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr15;
 	goto tr0;
@@ -398,7 +404,7 @@ st10:
 	if ( ++p == pe )
 		goto _test_eof10;
 case 10:
-#line 352 "tbl.c"
+#line 358 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr16;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -486,7 +492,7 @@ st12:
 	if ( ++p == pe )
 		goto _test_eof12;
 case 12:
-#line 429 "tbl.c"
+#line 435 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr18;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -502,7 +508,7 @@ st13:
 	if ( ++p == pe )
 		goto _test_eof13;
 case 13:
-#line 443 "tbl.c"
+#line 449 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr19;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -538,7 +544,7 @@ st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 474 "tbl.c"
+#line 480 "tbl.c"
 	switch( (*p) ) {
 		case 100: goto tr21;
 		case 105: goto st16;
@@ -557,7 +563,7 @@ st15:
 	if ( ++p == pe )
 		goto _test_eof15;
 case 15:
-#line 491 "tbl.c"
+#line 497 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr24;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -582,7 +588,7 @@ st17:
 	if ( ++p == pe )
 		goto _test_eof17;
 case 17:
-#line 514 "tbl.c"
+#line 520 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr27;
 	goto tr0;
@@ -596,7 +602,7 @@ st18:
 	if ( ++p == pe )
 		goto _test_eof18;
 case 18:
-#line 526 "tbl.c"
+#line 532 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr28;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -618,23 +624,24 @@ tr18:
   }
 #line 136 "tbl.rl"
 	{ {cs = stack[--top];goto _again;} }
-	goto st22;
-st22:
+	goto st23;
+st23:
 	if ( ++p == pe )
-		goto _test_eof22;
-case 22:
-#line 550 "tbl.c"
+		goto _test_eof23;
+case 23:
+#line 556 "tbl.c"
 	goto tr0;
 	}
 	_test_eof20: cs = 20; goto _test_eof; 
 	_test_eof1: cs = 1; goto _test_eof; 
+	_test_eof21: cs = 21; goto _test_eof; 
 	_test_eof2: cs = 2; goto _test_eof; 
 	_test_eof3: cs = 3; goto _test_eof; 
 	_test_eof4: cs = 4; goto _test_eof; 
 	_test_eof5: cs = 5; goto _test_eof; 
 	_test_eof6: cs = 6; goto _test_eof; 
 	_test_eof7: cs = 7; goto _test_eof; 
-	_test_eof21: cs = 21; goto _test_eof; 
+	_test_eof22: cs = 22; goto _test_eof; 
 	_test_eof8: cs = 8; goto _test_eof; 
 	_test_eof9: cs = 9; goto _test_eof; 
 	_test_eof10: cs = 10; goto _test_eof; 
@@ -647,7 +654,7 @@ case 22:
 	_test_eof17: cs = 17; goto _test_eof; 
 	_test_eof18: cs = 18; goto _test_eof; 
 	_test_eof19: cs = 19; goto _test_eof; 
-	_test_eof22: cs = 22; goto _test_eof; 
+	_test_eof23: cs = 23; goto _test_eof; 
 
 	_test_eof: {}
 	if ( p == eof )
@@ -677,7 +684,7 @@ case 22:
     return TBL_E_INVALID_DATA;
   }
 	break;
-#line 602 "tbl.c"
+#line 609 "tbl.c"
 	}
 	}
 

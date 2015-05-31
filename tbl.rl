@@ -135,7 +135,7 @@ static int parse(char *buf, size_t length,
 
   dict_parser := ((dict_key bencode)* 'e' @dict_end @{ fret; }) $!error;
 
-  main := bencode* $!error;
+  main := bencode? $!error;
 
   write init;
   write exec;

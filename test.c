@@ -103,8 +103,8 @@ static char *test_integer(void)
   err = tbl_parse("i1234e", 6, &callbacks, &result);
   mu_assert("cancel by user", err == TBL_E_CANCELED_BY_USER);
 
-  err = tbl_parse("i1234567891234567891234567e", 14, &callbacks, &result);
-  mu_assert("too big integer", err == TBL_E_INVALID_DATA);
+  err = tbl_parse("i12345", 6, &callbacks, &result);
+  mu_assert("no end", err == TBL_E_INVALID_DATA);
 
   err = tbl_parse("i0012e", 6, &callbacks, &result);
   mu_assert("no preceding zeroes allowed", err == TBL_E_INVALID_DATA);

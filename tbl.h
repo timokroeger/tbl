@@ -23,11 +23,15 @@
 extern "C" {
 #endif
 
+// Specifies how many levels of nesting are supported.
+#define TBL_STACK_SIZE 256
+
 enum tbl_error {
   TBL_E_NONE = 0,
   TBL_E_INVALID_DATA,
   TBL_E_CANCELED_BY_USER,
   TBL_E_NO_CALLBACKS,
+  TBL_E_STACK_OVERFLOW,
   TBL_E_UNKNOWN
 };
 

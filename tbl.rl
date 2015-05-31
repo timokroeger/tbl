@@ -27,12 +27,18 @@ static int parse(char *buf, size_t length,
   bool integer_negative = false;
   int64_t integer_value = 0;
 
-  int cs;
+  int cs, top, stack[TBL_STACK_SIZE];
   char *p = buf;
   char *pe = p + length;
   char *eof = pe;
 
 %%{
+  prepush {
+    if (top >= TBL_STACK_SIZE) {
+      return TBL_E_STACK_OVERFLOW;
+    }
+  }
+
   action error {
     return TBL_E_INVALID_DATA;
   }
@@ -51,6 +57,11 @@ static int parse(char *buf, size_t length,
     }
   }
 
+  action reset_integer {
+    integer_negative = false;
+    integer_value = 0;
+  }
+
   action skip_string {
     // String larger than remaining buffer.
     if (integer_value >= pe - p) {
@@ -66,16 +77,34 @@ static int parse(char *buf, size_t length,
     p += integer_value;
   }
 
+  action list_start {
+    if (callbacks->list_start && callbacks->list_start(ctx) != 0) {
+      return TBL_E_CANCELED_BY_USER;
+    }
+  }
+
+  action list_end {
+    if (callbacks->list_end && callbacks->list_end(ctx) != 0) {
+      return TBL_E_CANCELED_BY_USER;
+    }
+  }
+
   integer = 'i'
             ( '0'
             | ('-'? @{ integer_negative = true; }
               [1-9] @update ([0-9]@update)*)
             )
-            'e' @integer_parsed;
+            'e' @integer_parsed @reset_integer;
 
-  string = digit+ @update ':' @skip_string;
+  string = digit+ @update ':' @skip_string @reset_integer;
 
-  main := (integer | string)* $!error;
+  list = 'l' @list_start @{ fcall list_parser; };
+
+  bencode = (integer | string | list);
+
+  list_parser := (bencode* 'e'  @list_end) @{ fret; } $!error;
+
+  main := bencode* $!error;
 
   write init;
   write exec;

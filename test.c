@@ -160,21 +160,13 @@ static char *test_list(void)
 
   callbacks.integer = NULL;
   callbacks.string = NULL;
+  callbacks.list_start = NULL;
+  callbacks.list_end = NULL;
 
   err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("no start callback", err == TBL_E_NONE);
+  mu_assert("no start or end callback", err == TBL_E_NONE);
 
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("no end callback", err == TBL_E_NONE);
-
-  callbacks.list_start = fail;
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.list_start = pass;
-
-  callbacks.list_end = fail;
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.list_end = pass;
 
   err = tbl_parse("le", 2, &callbacks, NULL);
@@ -188,6 +180,22 @@ static char *test_list(void)
 
   err = tbl_parse("l4:testi1234ee", 10, &callbacks, NULL);
   mu_assert("list overflows", err == TBL_E_INVALID_DATA);
+
+  char buffer[TBL_STACK_SIZE * 2 + 2];
+  memset(&buffer[0], 'l', sizeof(buffer) / 2);
+  memset(&buffer[sizeof(buffer) / 2], 'e', sizeof(buffer) / 2);
+  err = tbl_parse(&buffer[0], sizeof(buffer), &callbacks, NULL);
+  mu_assert("too much nested lists", err == TBL_E_STACK_OVERFLOW);
+
+  callbacks.list_start = fail;
+  callbacks.list_end = pass;
+  err = tbl_parse("le", 2, &callbacks, NULL);
+  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
+
+  callbacks.list_start = pass;
+  callbacks.list_end = fail;
+  err = tbl_parse("le", 2, &callbacks, NULL);
+  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
 
   return NULL;
 }
@@ -235,7 +243,7 @@ static char *all_tests(void)
   // mu_run_test(test_common);
   mu_run_test(test_integer);
   mu_run_test(test_string);
-  // mu_run_test(test_list);
+  mu_run_test(test_list);
   // mu_run_test(test_dict);
 
   return NULL;

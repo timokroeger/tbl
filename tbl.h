@@ -23,11 +23,15 @@
 extern "C" {
 #endif
 
+// Specifies how many levels of nesting are supported.
+#define TBL_STACK_SIZE 256
+
 enum tbl_error {
   TBL_E_NONE = 0,
   TBL_E_INVALID_DATA,
   TBL_E_CANCELED_BY_USER,
   TBL_E_NO_CALLBACKS,
+  TBL_E_STACK_OVERFLOW,
   TBL_E_UNKNOWN
 };
 
@@ -46,8 +50,8 @@ struct tbl_callbacks {
 
 // Parse bencode encoded string.
 // Returns an error code. A return value TBL_E_NONE indicates sucess.
-int tbl_parse(const char *buf, size_t length,
-              const struct tbl_callbacks *callbacks, void *ctx);
+int tbl_parse(char *buf, size_t length, const struct tbl_callbacks *callbacks,
+              void *ctx);
 
 #ifdef __cplusplus
 }

@@ -96,12 +96,15 @@ static char *test_integer(void)
   err = tbl_parse("i0e", 3, &callbacks, &result);
   mu_assert("zero", err == TBL_E_NONE);
 
+  err = tbl_parse("i-0e", 4, &callbacks, &result);
+  mu_assert("negative zero is not allowed", err == TBL_E_INVALID_DATA);
+
   result = 4321;
   err = tbl_parse("i1234e", 6, &callbacks, &result);
   mu_assert("cancel by user", err == TBL_E_CANCELED_BY_USER);
 
-  err = tbl_parse("i1234567891234567891234567e", 14, &callbacks, &result);
-  mu_assert("too big integer", err == TBL_E_INVALID_DATA);
+  err = tbl_parse("i12345", 6, &callbacks, &result);
+  mu_assert("no end", err == TBL_E_INVALID_DATA);
 
   err = tbl_parse("i0012e", 6, &callbacks, &result);
   mu_assert("no preceding zeroes allowed", err == TBL_E_INVALID_DATA);
@@ -157,21 +160,13 @@ static char *test_list(void)
 
   callbacks.integer = NULL;
   callbacks.string = NULL;
+  callbacks.list_start = NULL;
+  callbacks.list_end = NULL;
 
   err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("no start callback", err == TBL_E_NONE);
+  mu_assert("no start or end callback", err == TBL_E_NONE);
 
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("no end callback", err == TBL_E_NONE);
-
-  callbacks.list_start = fail;
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.list_start = pass;
-
-  callbacks.list_end = fail;
-  err = tbl_parse("le", 2, &callbacks, NULL);
-  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.list_end = pass;
 
   err = tbl_parse("le", 2, &callbacks, NULL);
@@ -186,6 +181,22 @@ static char *test_list(void)
   err = tbl_parse("l4:testi1234ee", 10, &callbacks, NULL);
   mu_assert("list overflows", err == TBL_E_INVALID_DATA);
 
+  char buffer[TBL_STACK_SIZE * 2 + 2];
+  memset(&buffer[0], 'l', sizeof(buffer) / 2);
+  memset(&buffer[sizeof(buffer) / 2], 'e', sizeof(buffer) / 2);
+  err = tbl_parse(&buffer[0], sizeof(buffer), &callbacks, NULL);
+  mu_assert("too much nested lists", err == TBL_E_STACK_OVERFLOW);
+
+  callbacks.list_start = fail;
+  callbacks.list_end = pass;
+  err = tbl_parse("le", 2, &callbacks, NULL);
+  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
+
+  callbacks.list_start = pass;
+  callbacks.list_end = fail;
+  err = tbl_parse("le", 2, &callbacks, NULL);
+  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
+
   return NULL;
 }
 
@@ -193,20 +204,15 @@ static char *test_dict(void)
 {
   int err;
 
-  err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("no start callback", err == TBL_E_NONE);
+  callbacks.integer = NULL;
+  callbacks.string = NULL;
+  callbacks.dict_start = NULL;
+  callbacks.dict_end = NULL;
 
   err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("no end callback", err == TBL_E_NONE);
+  mu_assert("no start or end callback", err == TBL_E_NONE);
 
-  callbacks.dict_start = fail;
-  err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.dict_start = pass;
-
-  callbacks.dict_end = fail;
-  err = tbl_parse("de", 2, &callbacks, NULL);
-  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
   callbacks.dict_end = pass;
 
   err = tbl_parse("de", 2, &callbacks, NULL);
@@ -223,6 +229,16 @@ static char *test_dict(void)
 
   err = tbl_parse("d4:testi1234ee", 10, &callbacks, NULL);
   mu_assert("dict overflows", err == TBL_E_INVALID_DATA);
+
+  callbacks.dict_start = fail;
+  callbacks.dict_end = pass;
+  err = tbl_parse("de", 2, &callbacks, NULL);
+  mu_assert("cancel start by user", err == TBL_E_CANCELED_BY_USER);
+
+  callbacks.dict_start = pass;
+  callbacks.dict_end = fail;
+  err = tbl_parse("de", 2, &callbacks, NULL);
+  mu_assert("cancel end by user", err == TBL_E_CANCELED_BY_USER);
 
   return NULL;
 }

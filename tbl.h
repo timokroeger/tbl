@@ -17,6 +17,7 @@
 #ifndef TBL_H
 #define TBL_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

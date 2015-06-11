@@ -23,7 +23,7 @@
 
 #line 22 "tbl.rl"
 
-#line 22 "tbl.c"
+#line 27 "tbl.c"
 static const int bencode_start = 20;
 static const int bencode_first_final = 20;
 static const int bencode_error = 0;
@@ -47,13 +47,13 @@ static int parse(char *buf, size_t length,
   char *eof = pe;
 
 
-#line 42 "tbl.c"
+#line 51 "tbl.c"
 	{
 	cs = bencode_start;
 	top = 0;
 	}
 
-#line 46 "tbl.c"
+#line 57 "tbl.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -111,7 +111,7 @@ tr0:
     return TBL_E_INVALID_DATA;
   }
 	goto st0;
-#line 102 "tbl.c"
+#line 115 "tbl.c"
 st0:
 cs = 0;
 	goto _out;
@@ -125,7 +125,7 @@ st1:
 	if ( ++p == pe )
 		goto _test_eof1;
 case 1:
-#line 114 "tbl.c"
+#line 129 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr2;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -206,7 +206,7 @@ st21:
 	if ( ++p == pe )
 		goto _test_eof21;
 case 21:
-#line 184 "tbl.c"
+#line 210 "tbl.c"
 	goto tr0;
 st2:
 	if ( ++p == pe )
@@ -227,7 +227,7 @@ st3:
 	if ( ++p == pe )
 		goto _test_eof3;
 case 3:
-#line 203 "tbl.c"
+#line 231 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr5;
 	goto tr0;
@@ -241,7 +241,7 @@ st4:
 	if ( ++p == pe )
 		goto _test_eof4;
 case 4:
-#line 215 "tbl.c"
+#line 245 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr6;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -329,7 +329,7 @@ st6:
 	if ( ++p == pe )
 		goto _test_eof6;
 case 6:
-#line 292 "tbl.c"
+#line 333 "tbl.c"
 	switch( (*p) ) {
 		case 100: goto tr8;
 		case 101: goto tr9;
@@ -349,7 +349,7 @@ st7:
 	if ( ++p == pe )
 		goto _test_eof7;
 case 7:
-#line 310 "tbl.c"
+#line 353 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr12;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -369,7 +369,7 @@ st22:
 	if ( ++p == pe )
 		goto _test_eof22;
 case 22:
-#line 327 "tbl.c"
+#line 373 "tbl.c"
 	goto tr0;
 st8:
 	if ( ++p == pe )
@@ -390,7 +390,7 @@ st9:
 	if ( ++p == pe )
 		goto _test_eof9;
 case 9:
-#line 346 "tbl.c"
+#line 394 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr15;
 	goto tr0;
@@ -404,7 +404,7 @@ st10:
 	if ( ++p == pe )
 		goto _test_eof10;
 case 10:
-#line 358 "tbl.c"
+#line 408 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr16;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -492,7 +492,7 @@ st12:
 	if ( ++p == pe )
 		goto _test_eof12;
 case 12:
-#line 435 "tbl.c"
+#line 496 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr18;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -508,7 +508,7 @@ st13:
 	if ( ++p == pe )
 		goto _test_eof13;
 case 13:
-#line 449 "tbl.c"
+#line 512 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr19;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -544,7 +544,7 @@ st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 480 "tbl.c"
+#line 548 "tbl.c"
 	switch( (*p) ) {
 		case 100: goto tr21;
 		case 105: goto st16;
@@ -563,7 +563,7 @@ st15:
 	if ( ++p == pe )
 		goto _test_eof15;
 case 15:
-#line 497 "tbl.c"
+#line 567 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr24;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -588,7 +588,7 @@ st17:
 	if ( ++p == pe )
 		goto _test_eof17;
 case 17:
-#line 520 "tbl.c"
+#line 592 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr27;
 	goto tr0;
@@ -602,7 +602,7 @@ st18:
 	if ( ++p == pe )
 		goto _test_eof18;
 case 18:
-#line 532 "tbl.c"
+#line 606 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr28;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -629,7 +629,7 @@ st23:
 	if ( ++p == pe )
 		goto _test_eof23;
 case 23:
-#line 556 "tbl.c"
+#line 633 "tbl.c"
 	goto tr0;
 	}
 	_test_eof20: cs = 20; goto _test_eof; 
@@ -684,7 +684,7 @@ case 23:
     return TBL_E_INVALID_DATA;
   }
 	break;
-#line 609 "tbl.c"
+#line 688 "tbl.c"
 	}
 	}
 

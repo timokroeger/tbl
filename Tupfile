@@ -1,10 +1,12 @@
+CC = clang
+
 CFLAGS += -Wall -Wconversion -Wextra -Wno-unused-parameter -Wstrict-prototypes
 CFLAGS += -pedantic -std=c99
 
 : foreach *.rl |> ragel -G2 -o %o %f |> %B.c
 
 ifeq (@(TUP_PLATFORM),win32)
-: *.c |> gcc $(CFLAGS) %f -o %o |> test.exe
+: *.c |> $(CC) $(CFLAGS) %f -o %o |> test.exe
 else
-: *.c |> gcc $(CFLAGS) %f -o %o |> test
+: *.c |> $(CC) $(CFLAGS) %f -o %o |> test
 endif

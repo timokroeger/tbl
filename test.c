@@ -61,6 +61,13 @@ static char *test_common(void)
   err = tbl_parse(ptr, 0, &callbacks, NULL);
   mu_assert("empty buffer", err == TBL_E_NONE);
 
+  err = tbl_parse(ptr, 5, &callbacks, NULL);
+  mu_assert("null pointer", err == TBL_E_INVALID_DATA);
+
+  ptr = "";
+  err = tbl_parse(ptr, 0, &callbacks, NULL);
+  mu_assert("empty buffer", err == TBL_E_NONE);
+
   err = tbl_parse(ptr, 8, NULL, NULL);
   mu_assert("no callbacks", err == TBL_E_NO_CALLBACKS);
 

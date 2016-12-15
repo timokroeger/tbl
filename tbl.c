@@ -41,19 +41,23 @@ static int parse(char *buf, size_t length,
   bool integer_negative = false;
   int64_t integer_value = 0;
 
+  if (buf == NULL) {
+    return (length == 0) ? TBL_E_NONE : TBL_E_INVALID_DATA;
+  }
+
   int cs, top, stack[TBL_STACK_SIZE];
   char *p = buf;
   char *pe = p + length;
   char *eof = pe;
 
 
-#line 51 "tbl.c"
+#line 55 "tbl.c"
 	{
 	cs = bencode_start;
 	top = 0;
 	}
 
-#line 57 "tbl.c"
+#line 61 "tbl.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -106,17 +110,17 @@ case 20:
 		goto tr1;
 	goto tr0;
 tr0:
-#line 42 "tbl.rl"
+#line 46 "tbl.rl"
 	{
     return TBL_E_INVALID_DATA;
   }
 	goto st0;
-#line 115 "tbl.c"
+#line 119 "tbl.c"
 st0:
 cs = 0;
 	goto _out;
 tr1:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -125,40 +129,40 @@ st1:
 	if ( ++p == pe )
 		goto _test_eof1;
 case 1:
-#line 129 "tbl.c"
+#line 133 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr2;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr1;
 	goto tr0;
 tr2:
-#line 65 "tbl.rl"
+#line 69 "tbl.rl"
 	{
     // String larger than remaining buffer.
     if (integer_value >= pe - p) {
       return TBL_E_INVALID_DATA;
     }
   }
-#line 72 "tbl.rl"
+#line 76 "tbl.rl"
 	{
     if (callbacks->string
         && callbacks->string(ctx, p + 1, (size_t)integer_value) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 86 "tbl.rl"
+#line 90 "tbl.rl"
 	{
     // Advance parser pointer by string lenght.
     p += integer_value;
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
   }
 	goto st21;
 tr6:
-#line 50 "tbl.rl"
+#line 54 "tbl.rl"
 	{
     if (integer_negative) {
       integer_value = -integer_value;
@@ -168,20 +172,20 @@ tr6:
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
   }
 	goto st21;
 tr29:
-#line 103 "tbl.rl"
+#line 107 "tbl.rl"
 	{
     if (callbacks->dict_start && callbacks->dict_start(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 130 "tbl.rl"
+#line 134 "tbl.rl"
 	{ {
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
@@ -189,13 +193,13 @@ tr29:
   {stack[top++] = 21; goto st12;}} }
 	goto st21;
 tr31:
-#line 91 "tbl.rl"
+#line 95 "tbl.rl"
 	{
     if (callbacks->list_start && callbacks->list_start(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 128 "tbl.rl"
+#line 132 "tbl.rl"
 	{ {
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
@@ -206,7 +210,7 @@ st21:
 	if ( ++p == pe )
 		goto _test_eof21;
 case 21:
-#line 210 "tbl.c"
+#line 214 "tbl.c"
 	goto tr0;
 st2:
 	if ( ++p == pe )
@@ -220,19 +224,19 @@ case 2:
 		goto tr5;
 	goto tr0;
 tr3:
-#line 117 "tbl.rl"
+#line 121 "tbl.rl"
 	{ integer_negative = true; }
 	goto st3;
 st3:
 	if ( ++p == pe )
 		goto _test_eof3;
 case 3:
-#line 231 "tbl.c"
+#line 235 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr5;
 	goto tr0;
 tr5:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -241,7 +245,7 @@ st4:
 	if ( ++p == pe )
 		goto _test_eof4;
 case 4:
-#line 245 "tbl.c"
+#line 249 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr6;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -255,33 +259,33 @@ case 5:
 		goto tr6;
 	goto tr0;
 tr12:
-#line 65 "tbl.rl"
+#line 69 "tbl.rl"
 	{
     // String larger than remaining buffer.
     if (integer_value >= pe - p) {
       return TBL_E_INVALID_DATA;
     }
   }
-#line 72 "tbl.rl"
+#line 76 "tbl.rl"
 	{
     if (callbacks->string
         && callbacks->string(ctx, p + 1, (size_t)integer_value) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 86 "tbl.rl"
+#line 90 "tbl.rl"
 	{
     // Advance parser pointer by string lenght.
     p += integer_value;
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
   }
 	goto st6;
 tr16:
-#line 50 "tbl.rl"
+#line 54 "tbl.rl"
 	{
     if (integer_negative) {
       integer_value = -integer_value;
@@ -291,20 +295,20 @@ tr16:
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
   }
 	goto st6;
 tr8:
-#line 103 "tbl.rl"
+#line 107 "tbl.rl"
 	{
     if (callbacks->dict_start && callbacks->dict_start(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 130 "tbl.rl"
+#line 134 "tbl.rl"
 	{ {
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
@@ -312,13 +316,13 @@ tr8:
   {stack[top++] = 6; goto st12;}} }
 	goto st6;
 tr11:
-#line 91 "tbl.rl"
+#line 95 "tbl.rl"
 	{
     if (callbacks->list_start && callbacks->list_start(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 128 "tbl.rl"
+#line 132 "tbl.rl"
 	{ {
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
@@ -329,7 +333,7 @@ st6:
 	if ( ++p == pe )
 		goto _test_eof6;
 case 6:
-#line 333 "tbl.c"
+#line 337 "tbl.c"
 	switch( (*p) ) {
 		case 100: goto tr8;
 		case 101: goto tr9;
@@ -340,7 +344,7 @@ case 6:
 		goto tr7;
 	goto tr0;
 tr7:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -349,27 +353,27 @@ st7:
 	if ( ++p == pe )
 		goto _test_eof7;
 case 7:
-#line 353 "tbl.c"
+#line 357 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr12;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr7;
 	goto tr0;
 tr9:
-#line 97 "tbl.rl"
+#line 101 "tbl.rl"
 	{
     if (callbacks->list_end && callbacks->list_end(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 134 "tbl.rl"
+#line 138 "tbl.rl"
 	{ {cs = stack[--top];goto _again;} }
 	goto st22;
 st22:
 	if ( ++p == pe )
 		goto _test_eof22;
 case 22:
-#line 373 "tbl.c"
+#line 377 "tbl.c"
 	goto tr0;
 st8:
 	if ( ++p == pe )
@@ -383,19 +387,19 @@ case 8:
 		goto tr15;
 	goto tr0;
 tr13:
-#line 117 "tbl.rl"
+#line 121 "tbl.rl"
 	{ integer_negative = true; }
 	goto st9;
 st9:
 	if ( ++p == pe )
 		goto _test_eof9;
 case 9:
-#line 394 "tbl.c"
+#line 398 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr15;
 	goto tr0;
 tr15:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -404,7 +408,7 @@ st10:
 	if ( ++p == pe )
 		goto _test_eof10;
 case 10:
-#line 408 "tbl.c"
+#line 412 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr16;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -418,33 +422,33 @@ case 11:
 		goto tr16;
 	goto tr0;
 tr24:
-#line 65 "tbl.rl"
+#line 69 "tbl.rl"
 	{
     // String larger than remaining buffer.
     if (integer_value >= pe - p) {
       return TBL_E_INVALID_DATA;
     }
   }
-#line 72 "tbl.rl"
+#line 76 "tbl.rl"
 	{
     if (callbacks->string
         && callbacks->string(ctx, p + 1, (size_t)integer_value) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 86 "tbl.rl"
+#line 90 "tbl.rl"
 	{
     // Advance parser pointer by string lenght.
     p += integer_value;
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
   }
 	goto st12;
 tr28:
-#line 50 "tbl.rl"
+#line 54 "tbl.rl"
 	{
     if (integer_negative) {
       integer_value = -integer_value;
@@ -454,20 +458,20 @@ tr28:
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
   }
 	goto st12;
 tr21:
-#line 103 "tbl.rl"
+#line 107 "tbl.rl"
 	{
     if (callbacks->dict_start && callbacks->dict_start(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 130 "tbl.rl"
+#line 134 "tbl.rl"
 	{ {
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
@@ -475,13 +479,13 @@ tr21:
   {stack[top++] = 12; goto st12;}} }
 	goto st12;
 tr23:
-#line 91 "tbl.rl"
+#line 95 "tbl.rl"
 	{
     if (callbacks->list_start && callbacks->list_start(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 128 "tbl.rl"
+#line 132 "tbl.rl"
 	{ {
     if (top >= TBL_STACK_SIZE) {
       return TBL_E_STACK_OVERFLOW;
@@ -492,14 +496,14 @@ st12:
 	if ( ++p == pe )
 		goto _test_eof12;
 case 12:
-#line 496 "tbl.c"
+#line 500 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr18;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr17;
 	goto tr0;
 tr17:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -508,33 +512,33 @@ st13:
 	if ( ++p == pe )
 		goto _test_eof13;
 case 13:
-#line 512 "tbl.c"
+#line 516 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr19;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr17;
 	goto tr0;
 tr19:
-#line 65 "tbl.rl"
+#line 69 "tbl.rl"
 	{
     // String larger than remaining buffer.
     if (integer_value >= pe - p) {
       return TBL_E_INVALID_DATA;
     }
   }
-#line 79 "tbl.rl"
+#line 83 "tbl.rl"
 	{
     if (callbacks->dict_key
         && callbacks->dict_key(ctx, p + 1, (size_t)integer_value) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 86 "tbl.rl"
+#line 90 "tbl.rl"
 	{
     // Advance parser pointer by string lenght.
     p += integer_value;
   }
-#line 60 "tbl.rl"
+#line 64 "tbl.rl"
 	{
     integer_negative = false;
     integer_value = 0;
@@ -544,7 +548,7 @@ st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 548 "tbl.c"
+#line 552 "tbl.c"
 	switch( (*p) ) {
 		case 100: goto tr21;
 		case 105: goto st16;
@@ -554,7 +558,7 @@ case 14:
 		goto tr20;
 	goto tr0;
 tr20:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -563,7 +567,7 @@ st15:
 	if ( ++p == pe )
 		goto _test_eof15;
 case 15:
-#line 567 "tbl.c"
+#line 571 "tbl.c"
 	if ( (*p) == 58 )
 		goto tr24;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -581,19 +585,19 @@ case 16:
 		goto tr27;
 	goto tr0;
 tr25:
-#line 117 "tbl.rl"
+#line 121 "tbl.rl"
 	{ integer_negative = true; }
 	goto st17;
 st17:
 	if ( ++p == pe )
 		goto _test_eof17;
 case 17:
-#line 592 "tbl.c"
+#line 596 "tbl.c"
 	if ( 49 <= (*p) && (*p) <= 57 )
 		goto tr27;
 	goto tr0;
 tr27:
-#line 46 "tbl.rl"
+#line 50 "tbl.rl"
 	{
     integer_value = integer_value * 10 + ((*p) - '0');
   }
@@ -602,7 +606,7 @@ st18:
 	if ( ++p == pe )
 		goto _test_eof18;
 case 18:
-#line 606 "tbl.c"
+#line 610 "tbl.c"
 	if ( (*p) == 101 )
 		goto tr28;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -616,20 +620,20 @@ case 19:
 		goto tr28;
 	goto tr0;
 tr18:
-#line 109 "tbl.rl"
+#line 113 "tbl.rl"
 	{
     if (callbacks->dict_end && callbacks->dict_end(ctx) != 0) {
       return TBL_E_CANCELED_BY_USER;
     }
   }
-#line 136 "tbl.rl"
+#line 140 "tbl.rl"
 	{ {cs = stack[--top];goto _again;} }
 	goto st23;
 st23:
 	if ( ++p == pe )
 		goto _test_eof23;
 case 23:
-#line 633 "tbl.c"
+#line 637 "tbl.c"
 	goto tr0;
 	}
 	_test_eof20: cs = 20; goto _test_eof; 
@@ -679,19 +683,19 @@ case 23:
 	case 17: 
 	case 18: 
 	case 19: 
-#line 42 "tbl.rl"
+#line 46 "tbl.rl"
 	{
     return TBL_E_INVALID_DATA;
   }
 	break;
-#line 688 "tbl.c"
+#line 692 "tbl.c"
 	}
 	}
 
 	_out: {}
 	}
 
-#line 142 "tbl.rl"
+#line 146 "tbl.rl"
 
 
   return TBL_E_NONE;

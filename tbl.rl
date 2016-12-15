@@ -27,6 +27,10 @@ static int parse(char *buf, size_t length,
   bool integer_negative = false;
   int64_t integer_value = 0;
 
+  if (buf == NULL) {
+    return (length == 0) ? TBL_E_NONE : TBL_E_INVALID_DATA;
+  }
+
   int cs, top, stack[TBL_STACK_SIZE];
   char *p = buf;
   char *pe = p + length;
